@@ -17,3 +17,7 @@ VOICE/
 # 系統
 .DS_Store
 Thumbs.db
+
+# 例外：考試網站(GitHub Pages)要用的 HTML 允許上傳
+!docs/
+!docs/*.html
