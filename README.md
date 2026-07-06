@@ -9,6 +9,9 @@
 - **期程**：六週，週末上課（開課日 2026-07-04）
 - **筆記方式**：上課錄音（本地 faster-whisper 轉錄，不上雲）＋ 補拍條列多的投影片 → 事後整理成 Markdown，並經權威來源查核修正。
 
+## ✍️ 線上自我測驗
+👉 **https://tm731531.github.io/ltc-caregiver-notes-2026/** — 全 23 章、109 選擇題 + 2 問答題，打亂選項模擬考試、即時對答案、計分、錯題重練。（[題庫重點](https://tm731531.github.io/ltc-caregiver-notes-2026/reference.html) · [下載離線版](https://github.com/tm731531/ltc-caregiver-notes-2026/releases/tag/v1.0)）
+
 ## 📅 上課日誌
 
 | 日期 | 主題 | 筆記 |
