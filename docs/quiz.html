@@ -79,6 +79,11 @@ const QUIZ=[{"chapter": 1, "title": "照顧服務員概論", "essay": false, "qu
 let pool=[],idx=0,right=0,wrong=[],answered=false;
 const chapsel=document.getElementById('chapsel');
 chapsel.innerHTML=QUIZ.map(c=>`<label><input type="checkbox" value="${c.chapter}"> ${c.chapter}. ${c.title}</label>`).join('');
+const LSK='caregiverQuizSettings_v1';
+function saveSettings(){try{localStorage.setItem(LSK,JSON.stringify({chapters:[...chapsel.querySelectorAll('input:checked')].map(x=>x.value),shuffle:document.getElementById('shuffleOpt').checked,onlyRev:document.getElementById('onlyRev').checked}));}catch(e){}}
+function loadSettings(){try{const s=JSON.parse(localStorage.getItem(LSK)||'{}');(s.chapters||[]).forEach(v=>{const el=chapsel.querySelector('input[value="'+v+'"]');if(el)el.checked=true;});if('shuffle' in s)document.getElementById('shuffleOpt').checked=s.shuffle;if('onlyRev' in s)document.getElementById('onlyRev').checked=s.onlyRev;}catch(e){}}
+document.addEventListener('change',e=>{if(e.target.matches('#chapsel input,#shuffleOpt,#onlyRev'))saveSettings();});
+loadSettings();
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function start(){
  const picked=[...chapsel.querySelectorAll('input:checked')].map(x=>+x.value);
