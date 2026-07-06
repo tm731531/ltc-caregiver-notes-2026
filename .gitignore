@@ -1,0 +1,19 @@
+# 投影片照片、圖片（不上傳）
+*.jpg
+*.jpeg
+*.png
+slides/
+
+# 錄音、逐字稿、轉錄程序、log（不上傳）
+VOICE/
+*.aac
+*.m4a
+*.txt
+*.log
+
+# 已轉成 MD，不上傳 HTML
+*.html
+
+# 系統
+.DS_Store
+Thumbs.db
