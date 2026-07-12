@@ -11,6 +11,12 @@ VOICE/
 *.txt
 *.log
 
+# 操作示範影片（體積大，不上傳；clips/ 只保留 .md 重點筆記）
+*.mp4
+
+# 原始講義 PDF（受版權、體積大，只留本機；整理後內容已進 notes.md）
+*.pdf
+
 # 已轉成 MD，不上傳 HTML
 *.html
 
