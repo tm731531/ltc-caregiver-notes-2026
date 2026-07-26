@@ -80,6 +80,16 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 table.mini{width:100%;border-collapse:collapse;font-size:.82rem;margin:6px 0}
 table.mini th,table.mini td{border:1px solid var(--line);padding:5px 7px;text-align:center}
 table.mini th{background:var(--okbg)}
+table.sched{width:100%;border-collapse:collapse;font-size:.84rem;margin:8px 0}
+table.sched th,table.sched td{border:1px solid var(--line);padding:6px 8px;vertical-align:top}
+table.sched th{background:var(--okbg);text-align:center}
+table.sched td:first-child{text-align:center;font-weight:700;white-space:nowrap;width:44px}
+table.sched td:nth-child(3),table.sched td:nth-child(4){text-align:right;white-space:nowrap}
+table.sched tr.off td{color:var(--muted);text-align:center;background:var(--bg)}
+.vis{padding:3px 0;border-bottom:1px dotted var(--line)}
+.vis:last-child{border-bottom:0}
+.vis.dem{background:var(--revbg);border-radius:6px;padding:4px 6px;margin:2px 0;border-bottom:0}
+.vis .vp{display:block;color:var(--muted);font-size:.76rem}
 .tagf{display:inline-block;font-size:.7rem;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:5px}
 .tagf.law{background:var(--govbg);color:var(--gov)}
 .tagf.mkt{background:var(--revbg);color:var(--rev)}
@@ -110,6 +120,7 @@ table.mini th{background:var(--okbg)}
   <div class="tab on" data-tab="B">👵 民眾自付<span class="sub">我這等級要付多少</span></div>
   <div class="tab" data-tab="A">🧑‍⚕️ 照服員實領<span class="sub">拆帳後我拿多少</span></div>
   <div class="tab" data-tab="C">🏢 機構分潤<span class="sub">這筆錢怎麼分</span></div>
+  <div class="tab" data-tab="W">🗓️ 一週實戰<span class="sub">排班×時數×薪資</span></div>
 </div>
 
 <!-- ================= 共用：服務項目勾選 ================= -->
@@ -265,6 +276,54 @@ table.mini th{background:var(--okbg)}
   </div>
 </section>
 
+<!-- ================= TAB W 一週實戰 ================= -->
+<section data-panel="W" class="hidden">
+  <div class="note">🗓️ 這個 Tab 是<b>情境模擬</b>：排班內容（誰、幾個案、幾點來）是<b>寫實舉例</b>，但每項服務的<b>點數是真實法定單價</b>。看一個照服員一週實際長怎樣、能領多少。</div>
+  <div class="card">
+    <b>① 選你的情況</b>
+    <label class="fld">計酬制度</label>
+    <div class="seg" id="wSys">
+      <label class="on"><input type="radio" name="sys" value="split" checked>拆帳制（多勞多得）</label>
+      <label><input type="radio" name="sys" value="salary">月薪制（領固定）</label>
+    </div>
+    <label class="fld">資歷</label>
+    <div class="seg" id="wLvl">
+      <label class="on"><input type="radio" name="lvl" value="new" checked>新手（案量少、避難個案）</label>
+      <label><input type="radio" name="lvl" value="vet">老手（案滿、接失智/管路/沐浴車）</label>
+    </div>
+    <div id="wSalaryBox" class="hidden">
+      <label class="fld">月薪制的保障月薪 <span class="tagf mkt">市場</span></label>
+      <input type="number" id="wSalary" value="32000" style="width:110px"> 元　<span class="small">全時月薪保障下限；領固定，與點數無關。</span>
+    </div>
+    <div id="wSplitBox">
+      <label class="fld">拆帳成數（與其他 Tab 連動）<span class="tagf mkt">市場</span></label>
+      <span class="small">目前 <b id="wSplitTxt">70</b>%。到「照服員實領」Tab 拉滑桿可改。</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <b>② 這一週的排班</b>
+    <div id="wSched"></div>
+    <div class="res"><span class="k">本週服務時數</span><span class="v" id="wHours">0h</span></div>
+    <div class="res"><span class="k">本週給付點數（機構收）</span><span class="v" id="wPts">$0</span></div>
+    <div class="res"><span class="k">推估月點數（× 4.3 週）</span><span class="v" id="wMonPts">$0</span></div>
+    <div class="res big"><span class="k" id="wPayLabel">你這個月大約領</span><span class="v" id="wPay">$0</span></div>
+    <div class="small" id="wPayNote"></div>
+  </div>
+
+  <div class="ok" id="wCompare"></div>
+
+  <div class="note" style="border-left-color:var(--rev);background:var(--revbg)">
+    <b>🧠 失智個案的真相：</b><span id="wDem"></span>
+    <div class="law">失智照顧靠的是「安全看視＋陪伴」，時間長但點數密度低。<b>拆帳制下老手容易挑掉失智個案</b>（同樣時間去做洗澡/沐浴車更賺），月薪制才比較願意接——這就是為什麼失智長輩有時比較難找到穩定的人。</div>
+  </div>
+
+  <div class="warn">
+    <b>🚨 排班裡看不到、卻在吃你的：</b><br>
+    表上「服務時數」不含<b>跨案的騎車、等待、空班</b>——拆帳制這些<b>不算錢</b>（法定交通工時每小時不得低於 140，但實務常被省略）。所以「帳面點數」要打折看，真正到手的時薪常比想像低。
+  </div>
+</section>
+
 <!-- ================= 合規對照 ================= -->
 <h2 class="ch">🚨 合規 ↔ 違規對照（法條只列查證到的）</h2>
 <details class="acc"><summary>虛報／溢領給付</summary><div class="bd">
@@ -326,6 +385,30 @@ const G=[
 const CMS={2:10020,3:15460,4:18580,5:24100,6:28070,7:32090,8:36180};
 const RATE={general:{care:.16,transport:.27,aid:.30},midlow:{care:.05,transport:.09,aid:.10},low:{care:0,transport:0,aid:0}};
 const ALIAS={55:'55拆',60:'46拆',64:'64拆',70:'37拆',80:'28拆',82:'82拆'};
+const PRICE={},NAME={};BA.forEach(([c,n,p])=>{PRICE[c]=p;NAME[c]=n;});
+const WEEKS=4.3;
+/* 一週排班（情境舉例；點數用真實 BA 單價）。t=特別標記(失智) */
+const WEEK={
+ new:{days:[
+  {d:'週一',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'陳伯·家務陪伴',c:['BA15-1','BA20','BA22'],m:60},{n:'李奶·進食翻身',c:['BA04','BA10','BA24','BA03'],m:50}]},
+  {d:'週二',v:[{n:'林爺·洗澡',c:['BA07','BA05'],m:50},{n:'吳嬤·陪同外出',c:['BA13','BA20'],m:60},{n:'周伯·家務',c:['BA15-1','BA22'],m:45}]},
+  {d:'週三',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'黃奶·協助沐浴',c:['BA07','BA02'],m:45},{n:'李奶·進食翻身',c:['BA04','BA10','BA24'],m:45}]},
+  {d:'週四',v:[{n:'陳伯·家務陪伴',c:['BA15-1','BA20','BA22'],m:60},{n:'林爺·洗澡',c:['BA07','BA05'],m:50},{n:'蔡嬤·安全看視',c:['BA18','BA20'],m:60}]},
+  {d:'週五',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'吳嬤·陪同就醫',c:['BA14'],m:90},{n:'周伯·家務',c:['BA15-1','BA22'],m:45}]},
+  {d:'週六',v:[]},{d:'週日',v:[]}
+ ]},
+ vet:{days:[
+  {d:'週一',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'張爺·陪同就醫',c:['BA14'],m:90},{n:'陳伯·家務陪伴',c:['BA15-1','BA20','BA22'],m:60}]},
+  {d:'週二',v:[{n:'沐浴車團隊·到宅沐浴',c:['BA09'],m:40},{n:'李奶·進食翻身',c:['BA04','BA10','BA24','BA03'],m:50},{n:'周伯·家務',c:['BA15-1','BA22'],m:45}]},
+  {d:'週三',v:[{t:'🧠 ',n:'郭奶·失智照顧',c:['BA18','BA18','BA20','BA07','BA05'],m:150},{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'黃奶·陪伴',c:['BA20','BA22'],m:45}]},
+  {d:'週四',v:[{n:'林爺·洗澡',c:['BA07','BA05'],m:50},{n:'吳伯·管路照護',c:['BA17a','BA17c','BA10','BA04','BA03'],m:60},{n:'張爺·陪同就醫',c:['BA14'],m:90},{n:'周伯·家務',c:['BA15-1','BA22'],m:45}]},
+  {d:'週五',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'李奶·進食翻身',c:['BA04','BA10','BA24'],m:45},{n:'陳伯·家務陪伴',c:['BA15-1','BA20','BA22'],m:60},{n:'蔡嬤·安全看視',c:['BA18'],m:30}]},
+  {d:'週六',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05'],m:50},{n:'張爺·陪同就醫',c:['BA14'],m:90}]},
+  {d:'週日',v:[]}
+ ]}
+};
+const vpts=v=>v.c.reduce((s,c)=>s+(PRICE[c]||0),0);
+function weekStats(days){let p=0,m=0;days.forEach(d=>d.v.forEach(v=>{p+=vpts(v);m+=v.m;}));return{p,m};}
 
 const qty={};           // code -> quantity (shared across tabs)
 const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
@@ -434,17 +517,78 @@ document.querySelectorAll('#ident label').forEach(l=>l.addEventListener('click',
   document.querySelectorAll('#ident label').forEach(x=>x.classList.remove('on'));l.classList.add('on');}));
 
 /* 成數 A/C 連動 */
-$('split').addEventListener('input',()=>{$('splitC').value=$('split').value;recalc();});
-$('splitC').addEventListener('input',()=>{$('split').value=$('splitC').value;recalc();});
+$('split').addEventListener('input',()=>{$('splitC').value=$('split').value;recalc();recalcWeek();});
+$('splitC').addEventListener('input',()=>{$('split').value=$('splitC').value;recalc();recalcWeek();});
 ['cms','trPrice','trQty','aidAmt','tripFee','tripQty','cert','insSalary','empCost'].forEach(id=>{
   const el=$(id);el&&el.addEventListener('input',recalc);
 });
 document.querySelectorAll('input[name=id]').forEach(el=>el.addEventListener('change',recalc));
 
+/* ---------- Tab W 一週實戰 ---------- */
+function renderWeek(){
+  const lvl=document.querySelector('input[name=lvl]:checked').value;
+  let h='<table class="sched"><tr><th>日</th><th>個案 · 服務</th><th>時數</th><th>點數</th></tr>';
+  WEEK[lvl].days.forEach(d=>{
+    if(!d.v.length){h+=`<tr class="off"><td>${d.d}</td><td colspan="3">休息</td></tr>`;return;}
+    let dm=0,dp=0,cells='';
+    d.v.forEach(v=>{const p=vpts(v);dm+=v.m;dp+=p;
+      cells+=`<div class="vis${v.t?' dem':''}">${v.t||''}${v.n}（${p} 點）<span class="vp">${v.c.map(c=>NAME[c]||c).join('、')}</span></div>`;});
+    h+=`<tr><td>${d.d}</td><td>${cells}</td><td>${(dm/60).toFixed(1)}h</td><td>${dp.toLocaleString()}</td></tr>`;
+  });
+  h+='</table>';$('wSched').innerHTML=h;
+}
+function recalcWeek(){
+  const lvl=document.querySelector('input[name=lvl]:checked').value;
+  const sys=document.querySelector('input[name=sys]:checked').value;
+  const pct=+$('split').value;
+  $('wSplitTxt').textContent=pct;
+  $('wSalaryBox').classList.toggle('hidden',sys!=='salary');
+  $('wSplitBox').classList.toggle('hidden',sys==='salary');
+  const st=weekStats(WEEK[lvl].days);
+  const monPts=st.p*WEEKS, splitInc=monPts*pct/100, salary=+$('wSalary').value||0;
+  $('wHours').textContent=(st.m/60).toFixed(1)+'h';
+  $('wPts').textContent=fmt(st.p);
+  $('wMonPts').textContent=fmt(monPts);
+  if(sys==='salary'){
+    $('wPayLabel').textContent='你這個月領（固定月薪）';
+    $('wPay').textContent=fmt(salary);
+    $('wPayNote').innerHTML=`月薪制領固定 ${fmt(salary)}，<b>不管點數多少都一樣</b>；但要做滿責任時數，機構把你的點數 ${fmt(monPts)} 收走。適合<b>案量還不穩的新手</b>求保障。`;
+  }else{
+    $('wPayLabel').textContent='你這個月大約領（拆帳）';
+    $('wPay').textContent=fmt(splitInc);
+    $('wPayNote').innerHTML=`拆帳 = 月點數 ${fmt(monPts)} × ${pct}% = ${fmt(splitInc)}（未計轉場費、空班/交通不算錢）。<b>多勞多得</b>。`;
+  }
+  // 新手 vs 老手 比較（同制度、同成數）
+  const sn=weekStats(WEEK.new.days), sv=weekStats(WEEK.vet.days);
+  const nInc=sys==='salary'?salary:sn.p*WEEKS*pct/100;
+  const vInc=sys==='salary'?salary:sv.p*WEEKS*pct/100;
+  const diffPct=Math.round((sv.p/sn.p-1)*100);
+  let cmp=`<b>👥 新手 vs 老手（同${sys==='salary'?'月薪制':'拆帳制'}）</b><br>
+    新手：週 ${fmt(sn.p)} 點、${(sn.m/60).toFixed(0)}h`+(sys==='salary'?'':`，月拆帳約 ${fmt(nInc)}`)+`<br>
+    老手：週 ${fmt(sv.p)} 點、${(sv.m/60).toFixed(0)}h`+(sys==='salary'?'':`，月拆帳約 ${fmt(vInc)}`)+`<br>
+    老手週點數多 <b>${diffPct}%</b>（接更多、動作快、能接失智/管路/沐浴車等）。`;
+  if(sys!=='salary'){
+    const salGuess=+$('wSalary').value||32000;
+    cmp+=`<br><b style="color:var(--accent)">關鍵：</b>新手拆帳約 ${fmt(nInc)}，${nInc<salGuess?`<b>比月薪 ${fmt(salGuess)} 還少 → 新手選月薪較穩</b>`:'已超過月薪'}；老手拆帳約 ${fmt(vInc)}，${vInc>salGuess?'<b>贏過月薪 → 老手拆帳才划算</b>':'仍未贏月薪'}。`;
+  }
+  $('wCompare').innerHTML=cmp;
+  // 失智洞察：老手週三失智個案 vs 一個洗澡個案 的點數/小時
+  let dem=null,wash=null;
+  WEEK.vet.days.forEach(d=>d.v.forEach(v=>{if(v.t&&!dem)dem=v;if(v.n.includes('洗澡')&&!wash)wash=v;}));
+  const dd=Math.round(vpts(dem)/(dem.m/60)), wd=Math.round(vpts(wash)/(wash.m/60));
+  $('wDem').innerHTML=`失智個案「${dem.n.split('·')[1]}」花 ${dem.m} 分鐘只有 ${vpts(dem)} 點，換算<b>每小時約 ${dd} 點</b>；同時間去做洗澡個案<b>每小時約 ${wd} 點</b>——失智個案的點數密度只有洗澡的 <b>${Math.round(dd/wd*100)}%</b>。`;
+}
+document.querySelectorAll('#wSys label,#wLvl label').forEach(l=>l.addEventListener('click',()=>{
+  const grp=l.parentElement;grp.querySelectorAll('label').forEach(x=>x.classList.remove('on'));l.classList.add('on');
+  l.querySelector('input').checked=true;renderWeek();recalcWeek();
+}));
+['wSalary'].forEach(id=>$(id).addEventListener('input',recalcWeek));
+
 /* init */
 buildItems(BA,$('baItems'));
 buildItems(C,$('cItems'));
 buildItems(G,$('gItems'));
+renderWeek();recalcWeek();
 recalc();
 </script>
 </div></body></html>
