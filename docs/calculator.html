@@ -266,8 +266,11 @@ table.sch tr.off td{color:var(--muted)}
       <label onclick="loadPreset('vet')">💪 老手（含失智/管路/假日＋AA）</label>
       <label onclick="loadPreset('clear')">🗑️ 清空自己填</label>
     </div>
-    <label class="fld">拆帳成數（與「照服員實領」Tab 連動）<span class="tagf mkt">市場</span></label>
-    <span class="small">目前 <b id="wPct">70</b>%。月薪日照參考 <input type="number" id="wSalary" value="34000" style="width:90px"> 元。</span>
+    <label class="fld">拆帳成數（可調，與「照服員實領」Tab 連動）<span class="tagf mkt">市場</span></label>
+    <input type="range" id="wSplit" min="55" max="82" value="70">
+    <div class="res"><span class="k">你拿的成數</span><span class="v"><span id="wPct">70</span>%　<span class="small" id="wSplitAlias"></span></span></div>
+    <label class="fld">月薪日照參考</label>
+    <input type="number" id="wSalary" value="34000" style="width:100px"> 元
   </div>
 
   <div class="card" id="wSchedWrap">
@@ -287,11 +290,14 @@ table.sch tr.off td{color:var(--muted)}
 
   <div class="card">
     <b>④ 這個月換算（工時＋時薪）</b>
+    <div class="res"><span class="k">月服務次數（不含 AA 加成）</span><span class="v" id="wVisits">0 次</span></div>
     <div class="res"><span class="k">月總點數（機構收）</span><span class="v" id="wPts">$0</span></div>
-    <div class="res"><span class="k">月總工時（Σ 數量×時間）</span><span class="v" id="wHours">0 小時</span></div>
+    <div class="res"><span class="k">月總工時（Σ 數量×每項時間）</span><span class="v" id="wHours">0 小時</span></div>
     <div class="res"><span class="k">拆帳月收（點數 × 成數）</span><span class="v" id="wInc">$0</span></div>
     <div class="res big"><span class="k">⭐ 換算時薪（拆帳月收 ÷ 工時）</span><span class="v" id="wHourly">—</span></div>
     <div class="small" id="wSalComp"></div>
+    <div class="small" id="wVisitCmp"></div>
+    <div class="note" style="margin-top:10px">⚠️ <b>時數與時薪是估算，不是官方數據。</b>每項「時間」為代表值示意（併案的實作時間），官方<b>沒有「每日幾小時」的單一統計</b>；官方有的是居服員<b>平均每月約 101 次服務</b>（衛福部 112 年性別分析）。此處<b>班表時數與沙盒工時已用同一套算法</b>，兩邊一致。時薪為<b>高估值</b>（未扣跨案交通、等待、空班——拆帳制這些不計酬）。</div>
   </div>
 
   <details class="acc"><summary>💰 什麼是 AA 加成碼？（老手多賺的關鍵）</summary><div class="bd">
@@ -548,7 +554,8 @@ function renderSchedule(){
   let rows='';
   p.days.forEach(d=>{
     if(!d.v||!d.v.length){rows+=`<tr class="off"><td>${d.d}</td><td>休息</td><td>—</td></tr>`;return;}
-    const mins=d.v.reduce((s,v)=>s+v.m,0), aa=d.v.some(v=>v.aa);
+    // 時數用「每碼時間相加」＝跟下面沙盒同一套算法，兩邊才一致
+    const mins=d.v.reduce((s,v)=>s+v.c.reduce((a,c)=>a+(TIME[c]||0),0),0), aa=d.v.some(v=>v.aa);
     rows+=`<tr class="${aa?'aa':''}"><td>${d.d}</td><td>${d.v.map(v=>v.n).join('、')}</td><td>${(mins/60).toFixed(1)}h</td></tr>`;
   });
   $('wSched').innerHTML=`<table class="sch"><tr><th>日</th><th>接誰 · 做什麼</th><th>時數</th></tr>${rows}</table>`;
@@ -562,10 +569,15 @@ function loadPreset(key){
   renderSchedule();buildWTable();recalcW();
 }
 function recalcW(){
-  const pct=+$('split').value; $('wPct').textContent=pct;
-  let pts=0,min=0;
+  const pct=+$('split').value;
+  $('wPct').textContent=pct; $('wSplit').value=pct;
+  $('wSplitAlias').textContent=ALIAS[pct]?('≈'+ALIAS[pct]):'';
+  let pts=0,min=0,visits=0;
   W_ALL.forEach(c=>{const q=wq[c]||0; pts+=q*(PRICE[c]||0); min+=q*(TIME[c]||0);});
+  [...W_BA,...W_GA].forEach(c=>visits+=(wq[c]||0));
   const hours=min/60, inc=pts*pct/100, hourly=hours>0?inc/hours:0;
+  $('wVisits').textContent=visits+' 次';
+  $('wVisitCmp').innerHTML=visits>0?`參考：官方居服員平均約 <b>101 次服務/月</b>（衛福部 112 性別分析）。此處「次」指給付項目數，與官方口徑未必相同，僅供量級感、不宜直接比百分比。`:'';
   $('wPts').textContent=fmt(pts);
   $('wHours').textContent=hours.toFixed(1)+' 小時';
   $('wInc').textContent=fmt(inc);
@@ -589,6 +601,7 @@ document.addEventListener('input',e=>{
     wq[e.target.dataset.wcode]=v; e.target.closest('.it').classList.toggle('act',v>0); recalcW();}
 });
 $('wSalary').addEventListener('input',recalcW);
+$('wSplit').addEventListener('input',()=>{$('split').value=$('wSplit').value;recalc();recalcW();});
 
 /* init */
 buildItems(BA,$('baItems'));
