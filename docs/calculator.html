@@ -80,25 +80,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 table.mini{width:100%;border-collapse:collapse;font-size:.82rem;margin:6px 0}
 table.mini th,table.mini td{border:1px solid var(--line);padding:5px 7px;text-align:center}
 table.mini th{background:var(--okbg)}
-.ppl{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
-@media(max-width:700px){.ppl{grid-template-columns:1fr}}
-.pcard{border:2px solid var(--line);border-radius:14px;padding:14px;background:var(--card);display:flex;flex-direction:column}
-.pcard.A{border-color:#3fa96a}.pcard.B{border-color:var(--rev)}.pcard.C{border-color:var(--accent2)}
-.pcard .hd{font-size:1.15rem;font-weight:800}
-.pcard .rl{display:inline-block;font-size:.78rem;font-weight:700;border-radius:6px;padding:2px 8px;margin:4px 0;color:#fff}
-.pcard.A .rl{background:#3fa96a}.pcard.B .rl{background:var(--rev)}.pcard.C .rl{background:var(--accent2)}
-.pcard .ds{font-size:.82rem;color:var(--muted);margin:4px 0 8px;line-height:1.6}
-.pweek{width:100%;border-collapse:collapse;font-size:.78rem;margin:4px 0}
-.pweek td{border-bottom:1px solid var(--line);padding:3px 4px}
-.pweek td:first-child{font-weight:700;white-space:nowrap}
-.pweek td:last-child{text-align:right;white-space:nowrap}
-.pweek tr.aa td{color:var(--rev);font-weight:600}
-.pweek tr.off td{color:var(--muted)}
-.pcard .inc{margin-top:auto;padding-top:10px;border-top:2px solid var(--line)}
-.pcard .inc .n{font-size:2rem;font-weight:900;line-height:1.1}
-.pcard.A .inc .n{color:#3fa96a}.pcard.B .inc .n{color:var(--rev)}.pcard.C .inc .n{color:var(--accent2)}
-.pcard .mini2{font-size:.8rem;color:var(--muted);margin-top:4px}
-.pcard .src{font-size:.8rem;margin-top:6px}
+.grp{font-weight:700;margin:12px 0 4px;color:var(--accent)}
+.grp.rev{color:var(--rev)}
+#wPresets label{cursor:pointer}
 .tagf{display:inline-block;font-size:.7rem;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:5px}
 .tagf.law{background:var(--govbg);color:var(--gov)}
 .tagf.mkt{background:var(--revbg);color:var(--rev)}
@@ -287,11 +271,35 @@ table.mini th{background:var(--okbg)}
 
 <!-- ================= TAB W 一週實戰 ================= -->
 <section data-panel="W" class="hidden">
-  <div class="note">🗓️ <b>三個長照員的一週，並排比一比。</b>排班（誰、幾點來、做什麼）是<b>寫實舉例</b>；每項服務的點數用<b>真實法定單價</b>，含 <b>AA 加成碼</b>（困難/失智/假日/晚間加給）。拆帳成數與其他 Tab 連動，目前 <b id="wPct">70</b>%（去「照服員實領」Tab 拉滑桿可改）。月薪參考值 <input type="number" id="wSalary" value="34000" style="width:90px"> 元。</div>
+  <div class="note">🧪 <b>接案組合實驗室：算你的時薪。</b>點「範例組合」快速填入，或自己 +/- 調整每項數量，看這個月的<b>工時</b>與<b>換算時薪</b>怎麼變。<b>「新手/老手」只是範例起點，數字都能改。</b>點數含 BA 居家、GA 喘息、AA 加成，皆真實單價。</div>
 
-  <div id="ppl" class="ppl"></div>
+  <div class="card">
+    <b>① 範例組合（點了填入下表，可再自己改）</b>
+    <div class="seg" id="wPresets" style="margin-top:8px">
+      <label onclick="loadPreset('new')">🌱 新手（簡單居家、無 AA）</label>
+      <label onclick="loadPreset('vet')">💪 老手（含失智/管路/假日＋AA）</label>
+      <label onclick="loadPreset('clear')">🗑️ 清空自己填</label>
+    </div>
+    <label class="fld">拆帳成數（與「照服員實領」Tab 連動）<span class="tagf mkt">市場</span></label>
+    <span class="small">目前 <b id="wPct">70</b>%。月薪日照參考 <input type="number" id="wSalary" value="34000" style="width:90px"> 元。</span>
+  </div>
 
-  <div class="ok" id="pplSum"></div>
+  <div class="card" id="wTableWrap">
+    <b>② 這個月接的量（可 +/-）</b>
+    <div class="small">「時間」用來換算工時。<b>AA 加成不佔工時</b>（政府額外加錢、不扣民眾額度）。</div>
+    <div class="grp">居家照顧 BA</div><div id="wBA" class="items"></div>
+    <div class="grp">喘息 GA</div><div id="wGA" class="items"></div>
+    <div class="grp rev">加成 AA（不佔工時、純加錢）</div><div id="wAA" class="items"></div>
+  </div>
+
+  <div class="card">
+    <b>③ 這個月換算</b>
+    <div class="res"><span class="k">月總點數（機構收）</span><span class="v" id="wPts">$0</span></div>
+    <div class="res"><span class="k">月總工時（Σ 數量×時間）</span><span class="v" id="wHours">0 小時</span></div>
+    <div class="res"><span class="k">拆帳月收（點數 × 成數）</span><span class="v" id="wInc">$0</span></div>
+    <div class="res big"><span class="k">⭐ 換算時薪（拆帳月收 ÷ 工時）</span><span class="v" id="wHourly">—</span></div>
+    <div class="small" id="wSalComp"></div>
+  </div>
 
   <details class="acc"><summary>💰 什麼是 AA 加成碼？（老手多賺的關鍵）</summary><div class="bd">
     AA 碼是政府給照服員的「政策鼓勵加給」，<b>額外給、不扣民眾的長照額度</b>。接難個案、失智、假日、夜間都有加：
@@ -308,11 +316,11 @@ table.mini th{background:var(--okbg)}
 
   <div class="note" style="border-left-color:var(--rev);background:var(--revbg)">
     <b>🧠 失智個案的真相（含 AA 加成修正）：</b><span id="wDem"></span>
-    <div class="law">失智照顧靠「安全看視＋陪伴」，時間長、基礎點數密度低；雖可加 AA05(200)＋AA11(50)，仍補不平——除非排在假日(AA09 770)或晚間(AA08 385)。所以<b>拆帳制下失智個案相對不划算，月薪/日照的小華才最穩定願意接</b>。</div>
+    <div class="law">失智照顧靠「安全看視＋陪伴」，時間長、基礎點數密度低；雖可加 AA05(200)＋AA11(50)，仍補不平——除非排在假日(AA09 770)或晚間(AA08 385)。所以<b>拆帳制下失智個案相對不划算，月薪/日照制才最穩定願意接</b>。試試看：在上表加幾個 AA05／AA09，看時薪怎麼跳。</div>
   </div>
 
   <div class="warn">
-    <b>🚨 排班裡看不到、卻在吃你的：</b>表上「服務時數」不含<b>跨案騎車、等待、空班</b>——拆帳制這些<b>不算錢</b>（法定交通工時每小時不得低於 140，實務常被省略）。所以阿美、秀琴的帳面點數要打折看，真正時薪比想像低；小華月薪制則是這些時間都在班表內、照領。
+    <b>🚨 這個時薪還是高估的：</b>「月總工時」不含<b>跨案騎車、等待、空班</b>——拆帳制這些<b>不算錢</b>（法定交通工時每小時不得低於 140，實務常被省略）。所以拆帳制的實際時薪比上面算的更低；月薪制則是這些時間都在班表內、照領。
   </div>
 </section>
 
@@ -398,14 +406,6 @@ const PPL={
      {d:'週五',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'吳嬤·陪同就醫',c:['BA14'],m:90},{n:'周伯·家務',c:['BA15-1','BA22'],m:45}]},
      {d:'週六',v:[]},{d:'週日',v:[]}
     ]},
- B:{name:'小華',role:'月薪 · 日照中心',pay:'salary',cls:'B',
-    ds:'在日照中心上班，固定班 8:00–17:00，照顧一群長輩。領固定月薪、有完整勞健保＋勞退 6%，但綁班表、薪水不因接難個案而增加。',
-    src:'錢來自 1 個機構（固定月薪）',
-    days:[
-     {d:'週一',shift:'日照中心 團體照顧',h:8},{d:'週二',shift:'日照中心 團體照顧',h:8},
-     {d:'週三',shift:'日照中心（含失智長輩）',h:8},{d:'週四',shift:'日照中心 團體照顧',h:8},
-     {d:'週五',shift:'日照中心 團體照顧',h:8},{d:'週六',v:[]},{d:'週日',v:[]}
-    ]},
  C:{name:'秀琴',role:'老手 · 拆帳 · 多元',pay:'split',cls:'C',
     ds:'居家接滿：失智(+AA05困難+AA11訓練)、管路(+AA06)、沐浴車、假日喘息(GA09+AA09假日加成)。跨區、最操，但 AA 加成讓她賺最多。',
     src:'錢來自 8 個家庭 + 假日喘息',
@@ -419,8 +419,16 @@ const PPL={
      {d:'週日',v:[]}
     ]}
 };
-function personaStats(p){let m=0,pts=0;p.days.forEach(d=>{if(d.shift){m+=(d.h||0)*60;return;}(d.v||[]).forEach(v=>{m+=v.m;pts+=vpts(v);});});return{min:m,pts};}
-function dayPts(d){return d.shift?null:(d.v||[]).reduce((s,v)=>s+vpts(v),0);}
+/* 每項服務的代表工時（分鐘）；AA 加成不佔工時=0 */
+const TIME={BA01:40,BA02:30,BA03:10,BA04:30,BA05:30,BA07:40,BA08:40,BA09:40,BA09a:60,BA10:15,
+ BA11:30,BA12:20,BA13:30,BA14:90,'BA15-1':30,'BA16-1':30,BA17a:15,BA17b:15,BA17c:15,BA17d1:10,
+ BA17d2:15,BA17e:10,BA18:30,BA20:50,BA22:20,BA23:30,BA24:20,GA09:120,GA07:60,
+ AA04:0,AA05:0,AA06:0,AA07:0,AA08:0,AA09:0,AA10:0,AA11:0};
+const W_BA=BA.map(x=>x[0]), W_GA=['GA09','GA07'], W_AA=['AA04','AA05','AA06','AA07','AA08','AA09','AA10','AA11'];
+const W_ALL=[...W_BA,...W_GA,...W_AA];
+const wq={};
+/* 由範例排班推導「一個月」的碼別數量（週次數×4.3）*/
+function personaMonthlyQty(p){const q={};p.days.forEach(d=>(d.v||[]).forEach(v=>v.c.forEach(c=>q[c]=(q[c]||0)+1)));Object.keys(q).forEach(c=>q[c]=Math.round(q[c]*WEEKS));return q;}
 
 const qty={};           // code -> quantity (shared across tabs)
 const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
@@ -440,11 +448,12 @@ function buildItems(list,host){
 document.addEventListener('click',e=>{
   const b=e.target.closest('.stp button');if(!b)return;
   const inp=b.parentElement.querySelector('input');const code=inp.dataset.code;
+  if(!code)return; // W 表格用 data-wcode，交給它自己的 handler
   let v=(parseInt(inp.value)||0)+parseInt(b.dataset.d);if(v<0)v=0;
   inp.value=v;qty[code]=v;syncQty(code,v);recalc();
 });
 document.addEventListener('input',e=>{
-  if(e.target.matches('.stp input')){let v=parseInt(e.target.value)||0;if(v<0)v=0;
+  if(e.target.matches('.stp input')&&e.target.dataset.code){let v=parseInt(e.target.value)||0;if(v<0)v=0;
     qty[e.target.dataset.code]=v;syncQty(e.target.dataset.code,v);recalc();}
 });
 function syncQty(code,v){document.querySelectorAll(`.stp input[data-code="${code}"]`).forEach(i=>i.value=v);
@@ -530,53 +539,66 @@ document.querySelectorAll('#ident label').forEach(l=>l.addEventListener('click',
   document.querySelectorAll('#ident label').forEach(x=>x.classList.remove('on'));l.classList.add('on');}));
 
 /* 成數 A/C 連動 */
-$('split').addEventListener('input',()=>{$('splitC').value=$('split').value;recalc();renderPersonas();});
-$('splitC').addEventListener('input',()=>{$('split').value=$('splitC').value;recalc();renderPersonas();});
+$('split').addEventListener('input',()=>{$('splitC').value=$('split').value;recalc();recalcW();});
+$('splitC').addEventListener('input',()=>{$('split').value=$('splitC').value;recalc();recalcW();});
 ['cms','trPrice','trQty','aidAmt','tripFee','tripQty','cert','insSalary','empCost'].forEach(id=>{
   const el=$(id);el&&el.addEventListener('input',recalc);
 });
 document.querySelectorAll('input[name=id]').forEach(el=>el.addEventListener('change',recalc));
 
-/* ---------- Tab W 三個長照員 ---------- */
-function personaCard(key){
-  const p=PPL[key],pct=+$('split').value,salary=+$('wSalary').value||0;
-  const st=personaStats(p),monPts=st.pts*WEEKS;
-  const income=p.pay==='salary'?salary:monPts*pct/100;
-  let rows='';
-  p.days.forEach(d=>{
-    if(d.shift){rows+=`<tr><td>${d.d}</td><td>${d.shift}</td><td>${d.h}h</td></tr>`;return;}
-    if(!d.v||!d.v.length){rows+=`<tr class="off"><td>${d.d}</td><td>休息</td><td>—</td></tr>`;return;}
-    const aa=d.v.some(v=>v.aa);
-    rows+=`<tr class="${aa?'aa':''}"><td>${d.d}</td><td>${d.v.map(v=>v.n).join('、')}</td><td>${dayPts(d).toLocaleString()}</td></tr>`;
-  });
-  const inc=p.pay==='salary'
-    ? `<div class="n">${fmt(income)}</div><div class="mini2">固定月薪（不看點數）· 週 ${(st.min/60).toFixed(0)}h</div>`
-    : `<div class="n">${fmt(income)}</div><div class="mini2">拆帳月收 · 週 ${fmt(st.pts)}點 / ${(st.min/60).toFixed(0)}h · 月點數 ${fmt(monPts)}×${pct}%</div>`;
-  return `<div class="pcard ${p.cls}"><div class="hd">${p.name}</div><span class="rl">${p.role}</span>
-    <div class="ds">${p.ds}</div><table class="pweek">${rows}</table>
-    <div class="src">🧩 ${p.src}</div>
-    <div class="inc"><div class="mini2">這個月大約領</div>${inc}</div></div>`;
+/* ---------- Tab W 接案組合實驗室 ---------- */
+function wRow(code){
+  const t=TIME[code]||0;
+  return `<div class="it${(wq[code]||0)>0?' act':''}" data-wc="${code}">
+    <div class="nm"><span class="cd">${code}</span>${NAME[code]||code}<span class="pr"> ${PRICE[code]}點 · ${t?t+'分':'加成'}</span></div>
+    <div class="stp"><button data-wd="-1">−</button><input type="text" inputmode="numeric" value="${wq[code]||0}" data-wcode="${code}"><button data-wd="1">＋</button></div>
+  </div>`;
 }
-function renderPersonas(){
-  const pct=+$('split').value, sal=+$('wSalary').value||0;
-  $('wPct').textContent=pct;
-  $('ppl').innerHTML=['A','B','C'].map(personaCard).join('');
-  const aI=personaStats(PPL.A).pts*WEEKS*pct/100, cI=personaStats(PPL.C).pts*WEEKS*pct/100;
-  $('pplSum').innerHTML=`<b>📊 三人月收對照（拆帳 ${pct}%、月薪 ${fmt(sal)}）</b><br>
-    阿美(新手拆帳) <b>${fmt(aI)}</b> ＜ 小華(月薪) <b>${fmt(sal)}</b> ＜ 秀琴(老手拆帳) <b>${fmt(cI)}</b><br>
-    👉 <b style="color:var(--accent)">新手拆帳領最少</b>${aI<sal?'，甚至比月薪還少 → 新手其實選月薪/日照更穩':''}；老手靠案量＋難個案＋假日 AA 加成，拆帳才拉得開。<br>
-    👉 <b>老手若改領月薪？</b>秀琴拆帳 ${fmt(cI)}，改月薪只有 ${fmt(sal)}，<b>少 ${fmt(cI-sal)}/月</b> → 這就是老手不選月薪的原因（但拆帳也扛掉了勞退6%與穩定保障）。`;
-  const dem=PPL.C.days[2].v[0];
-  const base=['BA18','BA18','BA20','BA07','BA05'].reduce((s,c)=>s+PRICE[c],0), withAA=vpts(dem), demH=dem.m/60;
-  $('wDem').innerHTML=`郭奶失智個案 ${dem.m} 分鐘：基礎服務 ${base} 點（每小時約 <b>${Math.round(base/demH)}</b> 點），加 AA05+AA11 後 ${withAA} 點（每小時約 <b>${Math.round(withAA/demH)}</b> 點）；同時間做洗澡個案每小時約 <b>830</b> 點。`;
+function buildWTable(){
+  $('wBA').innerHTML=W_BA.map(wRow).join('');
+  $('wGA').innerHTML=W_GA.map(wRow).join('');
+  $('wAA').innerHTML=W_AA.map(wRow).join('');
 }
-$('wSalary').addEventListener('input',renderPersonas);
+function loadPreset(key){
+  W_ALL.forEach(c=>wq[c]=0);
+  if(key==='new')  Object.assign(wq,personaMonthlyQty(PPL.A));
+  if(key==='vet')  Object.assign(wq,personaMonthlyQty(PPL.C));
+  buildWTable();recalcW();
+}
+function recalcW(){
+  const pct=+$('split').value; $('wPct').textContent=pct;
+  let pts=0,min=0;
+  W_ALL.forEach(c=>{const q=wq[c]||0; pts+=q*(PRICE[c]||0); min+=q*(TIME[c]||0);});
+  const hours=min/60, inc=pts*pct/100, hourly=hours>0?inc/hours:0;
+  $('wPts').textContent=fmt(pts);
+  $('wHours').textContent=hours.toFixed(1)+' 小時';
+  $('wInc').textContent=fmt(inc);
+  $('wHourly').textContent=hours>0?fmt(hourly)+' /小時':'—';
+  const sal=+$('wSalary').value||0;
+  $('wSalComp').innerHTML=`月薪日照對照：領固定 <b>${fmt(sal)}</b>（以 174h 計時薪約 ${fmt(sal/174)}），綁班表但有完整勞健保＋勞退6%。你目前這組拆帳月收 <b>${fmt(inc)}</b>、時薪 <b>${hours>0?fmt(hourly):'—'}</b>${hours>0&&hourly<sal/174?'（比日照時薪低）':''}。`;
+  // 失智洞察（固定示例）
+  const base=['BA18','BA18','BA20','BA07','BA05'].reduce((s,c)=>s+PRICE[c],0), demH=2.5;
+  const withAA=base+PRICE.AA05+PRICE.AA11;
+  $('wDem').innerHTML=`一個失智個案約 2.5 小時、基礎服務 ${base} 點（每小時約 <b>${Math.round(base/demH)}</b> 點），加 AA05+AA11 後 ${withAA} 點（每小時約 <b>${Math.round(withAA/demH)}</b> 點）；同時間做洗澡個案每小時約 <b>830</b> 點。`;
+}
+/* W 表格自己的步進器（用 data-wcode / data-wd，跟共用區的 qty 分開） */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('#wTableWrap .stp button'); if(!b)return;
+  const inp=b.parentElement.querySelector('input'), code=inp.dataset.wcode;
+  let v=(parseInt(inp.value)||0)+parseInt(b.dataset.wd); if(v<0)v=0;
+  inp.value=v; wq[code]=v; inp.closest('.it').classList.toggle('act',v>0); recalcW();
+});
+document.addEventListener('input',e=>{
+  if(e.target.matches('#wTableWrap .stp input')){let v=parseInt(e.target.value)||0;if(v<0)v=0;
+    wq[e.target.dataset.wcode]=v; e.target.closest('.it').classList.toggle('act',v>0); recalcW();}
+});
+$('wSalary').addEventListener('input',recalcW);
 
 /* init */
 buildItems(BA,$('baItems'));
 buildItems(C,$('cItems'));
 buildItems(G,$('gItems'));
-renderPersonas();
+loadPreset('new');
 recalc();
 </script>
 </div></body></html>
