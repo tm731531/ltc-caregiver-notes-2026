@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>長照地圖：職涯×收入 · 照顧方案×收費</title>
+<!-- 資料查證日 2026-07-27；薪資/收費會變動，實際以 1966 及當地照管中心核定為準。查無者已標。 -->
+<style>
+:root{--bg:#f4f6f5;--fg:#1f2a28;--card:#fff;--muted:#6b7a76;--line:#e0e6e3;
+ --accent:#1f7a4d;--accent2:#0d6e6e;--money:#0d6e6e;--moneybg:#e4f3f3;--rev:#a85a00;--revbg:#fff3e0;
+ --bad:#c0392b;--badbg:#fdecea;--fam:#7a4fb0;--fambg:#f0eaf8;}
+@media(prefers-color-scheme:dark){:root{--bg:#161a19;--fg:#e6ece9;--card:#202624;--muted:#9aa8a3;--line:#333c39;
+ --accent:#4fc98a;--accent2:#3fb9b9;--money:#3fb9b9;--moneybg:#13302f;--rev:#d18a3a;--revbg:#33280f;
+ --badbg:#3a1f1c;--fam:#b593e0;--fambg:#241a33;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.7;font-size:16.5px}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 70px}
+a{color:var(--accent)}
+.top{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;padding:22px;margin-bottom:14px}
+.top h1{margin:0 0 6px;font-size:1.4rem}.top p{margin:0;opacity:.94;font-size:.9rem}
+.note{background:var(--revbg);border-left:4px solid var(--rev);border-radius:9px;padding:11px 15px;margin:12px 0;font-size:.86rem}
+.lensbar{display:flex;gap:10px;margin:14px 0}
+.lensbtn{flex:1;border:2px solid var(--line);border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;background:var(--card);font-weight:700;transition:.15s}
+.lensbtn .ic{font-size:1.7rem;display:block}
+.lensbtn .sub{font-weight:400;font-size:.8rem;color:var(--muted);display:block;margin-top:3px}
+.lensbtn.on.care{border-color:var(--accent);background:var(--accent);color:#fff}
+.lensbtn.on.fam{border-color:var(--fam);background:var(--fam);color:#fff}
+.lensbtn.on .sub{color:rgba(255,255,255,.9)}
+.tier{margin:22px 0 8px}
+.tier h2{font-size:1.15rem;margin:0 0 2px;display:flex;align-items:center;gap:8px}
+.tier .th{font-size:.84rem;color:var(--muted);margin-bottom:8px}
+.care h2{color:var(--accent);border-left:5px solid var(--accent);padding-left:10px}
+.fam h2{color:var(--fam);border-left:5px solid var(--fam);padding-left:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.node{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:0;overflow:hidden}
+.node>summary{list-style:none;cursor:pointer;padding:13px 15px}
+.node>summary::-webkit-details-marker{display:none}
+.node .nm{font-weight:800;font-size:1.02rem}
+.node .pay{font-weight:800;color:var(--money);font-size:1.05rem;margin-top:4px}
+.node .pay small{font-weight:400;color:var(--muted);font-size:.76rem}
+.node .tag{display:inline-block;font-size:.7rem;font-weight:700;border-radius:5px;padding:1px 7px;margin:5px 5px 0 0}
+.tag.split{background:var(--revbg);color:var(--rev)}.tag.salary{background:var(--moneybg);color:var(--money)}
+.tag.gate{background:var(--badbg);color:var(--bad)}.tag.na{background:var(--line);color:var(--muted)}
+.node .bd{padding:0 15px 13px;font-size:.86rem;color:var(--fg)}
+.node .bd .row{margin:5px 0}.node .bd b{color:var(--accent2)}
+.node[open]{border-color:var(--accent)}
+.fam .node[open]{border-color:var(--fam)}
+.node .go{display:inline-block;margin-top:8px;background:var(--accent);color:#fff;border-radius:8px;padding:6px 12px;font-size:.82rem;text-decoration:none;font-weight:700}
+.fam .node .go{background:var(--fam)}
+.flowdown{text-align:center;color:var(--muted);font-size:1.3rem;margin:2px 0}
+table.cmp{width:100%;border-collapse:collapse;font-size:.82rem;margin:8px 0}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+table.cmp th{background:var(--fambg)}
+.src{font-size:.74rem;color:var(--muted);margin-top:6px}
+.foot{color:var(--muted);font-size:.8rem;margin-top:34px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+.hidden{display:none!important}
+.big1{font-size:1.15rem;font-weight:700;margin:10px 0}
+</style></head><body><div class="wrap">
+
+<div class="top">
+  <h1>🗺️ 長照地圖</h1>
+  <p>一張圖，兩種看法：<b>想入這行/往上爬</b>看職涯與收入；<b>要照顧家人</b>看方案與收費。<br>資料查核 2026-07-27｜金額會變，實際以 <b>1966</b> 及當地照管中心為準。</p>
+</div>
+
+<div class="lensbar">
+  <div class="lensbtn care on" data-lens="care"><span class="ic">🧑‍⚕️</span>我是照顧者／想入行<span class="sub">職涯路徑 × 每個位置賺多少</span></div>
+  <div class="lensbtn fam" data-lens="fam"><span class="ic">👵</span>我是家屬<span class="sub">照顧方案 × 收費補助</span></div>
+</div>
+
+<!-- ================= 照顧者職涯 ================= -->
+<section data-lens="care" class="care">
+  <div class="note">💡 入行門檻低：年滿 16 歲 ＋ <b>90 小時訓練結業</b>（公費班補助 80–100%）就能當照服員，月薪保障 <b>32,000</b> 起。往後兩條路：<b>同職位換地點</b>（薪水/型態不同）或 <b>升遷考照</b>（要資歷/證照/學歷）。點卡片看細節。</div>
+
+  <div class="tier">
+    <h2>① 入口</h2>
+    <div class="th">先拿到這張門票</div>
+    <div class="grid">
+      <details class="node" open><summary><div class="nm">照顧服務員</div><div class="pay">月 32,000 起 <small>平均約 38,500</small></div><span class="tag split">依地點：月薪/時薪/拆帳</span></summary>
+        <div class="bd"><div class="row"><b>做什麼</b>：第一線生活照顧、身體清潔、翻身、備餐、陪伴。</div>
+        <div class="row"><b>門檻</b>：滿 16 歲＋90hr 訓練結業證明（核心 50＋實作 8＋實習 30＋討論 2）。</div>
+        <div class="row"><b>薪水</b>：全職政策保障底薪 32,000（非平均實領）；平均約 38,500，做得好 45,000–60,000+。</div>
+        <div class="src">來源：衛福部 居服員月薪 32k 起／資格訓練計畫；airltc 2026。</div></div></details>
+      <details class="node"><summary><div class="nm">＋ 單一級技術士證</div><div class="pay">加給約 +1,000/月</div><span class="tag salary">加分項，非職位</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：考照拿證，當加給與升遷門檻（很多跳點要它）。</div>
+        <div class="row"><b>門檻</b>：滿 16 歲＋結業證明或相關科系；先學科後術科，報檢費 2,600。</div>
+        <div class="src">來源：104 能力庫 單一級；1966 證照加給。</div></div></details>
+    </div>
+  </div>
+
+  <div class="tier">
+    <h2>② 換地點（一樣是照服員，地點決定薪水與型態）</h2>
+    <div class="th">不用考照，換場域就換收入結構</div>
+    <div class="grid">
+      <details class="node"><summary><div class="nm">🏠 居家服務（居服員）</div><div class="pay">32k ~ 60k+</div><span class="tag split">拆帳為主＋轉場/AA加給</span></summary>
+        <div class="bd"><div class="row"><b>型態</b>：到宅單點服務，時間最彈性、可全兼職。</div>
+        <div class="row"><b>收入</b>：拆帳制為主（46/37/28 拆）＋轉場費＋AA 加成＋證照/假日加給；或時薪 220–300；或保障月薪。</div>
+        <a class="go" href="calculator.html">→ 進計算器細算這個位置的收入</a>
+        <div class="src">來源：airltc 2026；衛福部；PTT 拆帳算法。</div></div></details>
+      <details class="node"><summary><div class="nm">🌤️ 日間照顧中心</div><div class="pay">月薪制</div><span class="tag salary">＋證照加給 1,000/月</span></summary>
+        <div class="bd"><div class="row"><b>型態</b>：白天 8hr 日班，照顧一群失能/失智長者。穩定、有勞健保。</div>
+        <div class="row"><b>收入</b>：月薪制（各機構不同）＋單一級證照加給 1,000/月。</div>
+        <div class="src">來源：1966；機構徵才。<b>各機構月薪未有統一公開數。</b></div></div></details>
+      <details class="node"><summary><div class="nm">🏥 住宿機構（養護／護理之家）</div><div class="pay">月薪＋輪班津貼</div><span class="tag salary">24hr 輪班</span></summary>
+        <div class="bd"><div class="row"><b>型態</b>：24hr 輪班，多重臥床個案。</div>
+        <div class="row"><b>收入</b>：月薪＋夜班/加班津貼（案例：某市立醫院護理之家約用 28,877，各院差異大）。</div>
+        <div class="src">來源：基隆市立醫院病服員；臨海長照。</div></div></details>
+      <details class="node"><summary><div class="nm">🏨 醫院院聘照服員</div><div class="pay">日 1,500–2,700</div><span class="tag salary">受僱，有勞健保</span></summary>
+        <div class="bd"><div class="row"><b>型態</b>：醫院正式聘僱，隨全責/住院整合照護配置（1:4–1:8），與護理協作。</div>
+        <div class="row"><b>收入</b>：日薪 1,500–2,700 或月薪；<b>有勞健保、較穩定</b>。</div>
+        <div class="src">來源：Indeed 職缺；北市聯醫招募。各院差異大。</div></div></details>
+      <details class="node"><summary><div class="nm">💰 醫院看護（自聘／仲介）</div><div class="pay">日 2,200–3,500</div><span class="tag gate">無底薪、無勞健保</span></summary>
+        <div class="bd"><div class="row"><b>型態</b>：家屬自費請、<b>不是醫院員工</b>、論日計酬。日領最高，但沒有任何保障。</div>
+        <div class="row"><b>收入</b>：24h 約 2,200–3,500／日；12h 約 2,000–3,000；長期月聘 5–8 萬。</div>
+        <div class="src">來源：ucarer／homexin 2026 行情。</div></div></details>
+      <details class="node"><summary><div class="nm">🍵 巷弄長照站</div><div class="pay na">查無統一薪資</div><span class="tag na">多為鐘點/兼職</span></summary>
+        <div class="bd"><div class="row"><b>型態</b>：半天、健康促進/共餐/關懷訪視，多為鐘點或兼職性質。</div>
+        <div class="row"><b>收入</b>：<b>查無統一數字</b>，不宜給固定月薪。</div></div></details>
+    </div>
+  </div>
+
+  <div class="tier">
+    <h2>③ 往上升遷（要資歷／證照／學歷）</h2>
+    <div class="th">↓ 越往下門檻越高，跨到護理師要回學校考照</div>
+    <div class="grid">
+      <details class="node"><summary><div class="nm">居家服務督導員（居督）</div><div class="pay">34,000–38,000</div><span class="tag salary">月薪</span></summary>
+        <div class="bd"><div class="row"><b>做什麼</b>：排班媒合人力、擬定/執行照顧計畫、個案關懷、資源協調。</div>
+        <div class="row"><b>門檻</b>：六選一——社工師／相關科系專科以上／<b>技術士＋3 年經驗</b>／照服員 5 年經驗／居督職前訓練結業等。</div>
+        <div class="src">來源：1111 職務；衛福部 居督訓練計畫。</div></div></details>
+      <details class="node"><summary><div class="nm">照顧管理專員（照專・政府照管中心）</div><div class="pay">43,399–56,752</div><span class="tag gate">需專技證/科系</span></summary>
+        <div class="bd"><div class="row"><b>做什麼</b>：到宅用 CMS 評失能等級、核定照顧計畫、抽查、資源轉介。</div>
+        <div class="row"><b>門檻</b>：大學＋社工師/護理師等 9 類專技證＋2 年；或專科＋3 年；或技術士＋高職護理/老照科系＋3 年。</div>
+        <div class="row"><b>薪水</b>：政府聘用薪點 6 等 3 階→7 等 6 階，每年 +2,000。</div>
+        <div class="src">來源：桃園衛生局照專；長照人員資格附件。</div></div></details>
+      <details class="node"><summary><div class="nm">A 個管師（民間 A 單位）</div><div class="pay">月 35–50k <small>年 65–85 萬</small></div><span class="tag salary">與照專不同體系</span></summary>
+        <div class="bd"><div class="row"><b>做什麼</b>：社區整合型服務中心到府評估、擬照護計畫、與照專溝通、訪視抽查、核銷。</div>
+        <div class="row"><b>薪水</b>：月約 35,000–50,000，部分含方案獎金。<b>年薪 65–85 萬為媒體整理，非官方薪表，且與政府「照專」是不同體系。</b></div>
+        <div class="src">來源：fiftyplus；Dcard 社工版。</div></div></details>
+      <details class="node"><summary><div class="nm">社工／社會工作師</div><div class="pay">起薪 36,316</div><span class="tag gate">需社工科系</span></summary>
+        <div class="bd"><div class="row"><b>做什麼</b>：個案服務、方案執行、資源連結、行政核銷。</div>
+        <div class="row"><b>門檻</b>：社工相關科系；可考社工師國考（公職更高）。起薪含社工職業加給 4,150、碩士 +2,075。</div>
+        <div class="src">來源：衛福部 社工薪資制度；104。</div></div></details>
+      <details class="node"><summary><div class="nm">護理師</div><div class="pay">月 47,716 <small>年 ~699k</small></div><span class="tag gate">回學校＋國考執照</span></summary>
+        <div class="bd"><div class="row"><b>做什麼</b>：執業護理、給藥、專業護理處置。</div>
+        <div class="row"><b>門檻（斷層最大）</b>：<b>必須讀護理系（二技/科大）＋實習合格＋通過護理師國考</b>，不是年資到就升。</div>
+        <div class="src">來源：3people 護理師薪資；2026 護理師國考。</div></div></details>
+      <details class="node"><summary><div class="nm">照顧管理督導 / 機構主管</div><div class="pay na">查無統一薪資</div><span class="tag na">資歷/經營者</span></summary>
+        <div class="bd"><div class="row"><b>照督</b>：督導照專、審核計畫；資格同照專＋督導訓練，<b>薪資查無公開數</b>（推估高於照專）。</div>
+        <div class="row"><b>機構負責人/主管</b>：技術士＋7 年經驗，或醫護/社工＋2–3 年；薪資依機構規模，<b>查無統一</b>。</div></div></details>
+    </div>
+  </div>
+
+  <div class="note">🩺 <b>醫療分支</b>：醫院看護 → 護佐（院內助理職，台灣統一薪資查無）→ 護理師，往上都卡「<b>要不要回學校考護理師執照</b>」這道門。這是照服員體系跳到醫療體系最大的斷層。</div>
+</section>
+
+<!-- ================= 家屬方案 ================= -->
+<section data-lens="fam" class="fam hidden">
+  <div class="note">💡 <b>大前提</b>：政府補的是「<b>服務</b>」不是現金——不折現、不用服務就領不到。流程：打 <b>1966</b>（前 5 分鐘免費）→ 照專到宅用 <b>CMS 量表</b>評失能 2–8 級 → 核定每月額度 → 你只付「<b>部分負擔</b>」。身分別決定付多少：一般戶最高、低收多為 0%。</div>
+
+  <div class="tier">
+    <h2>照顧選項（點卡片看收費/補助/適合誰）</h2>
+    <div class="th">長輩住哪、誰來顧、花多少</div>
+    <div class="grid">
+      <details class="node"><summary><div class="nm">🏠 居家服務</div><div class="pay">自付約 1,600–5,000/月</div><span class="tag salary">長照給付・住自己家</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：居服員到宅做清潔、照顧、陪伴。走「照顧及專業服務」額度。</div>
+        <div class="row"><b>額度（每月，依 CMS）</b>：2級 10,020／3級 15,460／4級 18,580／5級 24,100／6級 28,070／7級 32,090／8級 36,180。</div>
+        <div class="row"><b>你付</b>：一般 16%／中低 5%／低收 0%；<b>超過額度 100% 全自費</b>。</div>
+        <div class="row"><b>適合</b>：失能中低、想留在熟悉環境、白天家中有人或有外看。</div>
+        <a class="go" href="money.html">→ 白話看要付多少</a> <a class="go" href="calculator.html">→ 詳細試算</a>
+        <div class="src">來源：全國法規資料庫；桃園社會局；faqs.tw 2026。</div></div></details>
+      <details class="node"><summary><div class="nm">🌤️ 日間照顧中心</div><div class="pay">含餐交通約 5,000–12,000/月</div><span class="tag salary">白天送去晚上接回</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：白天送去、傍晚接回，提供照顧/餐食/復健/團康。</div>
+        <div class="row"><b>收費</b>：與居家<b>共用同一筆 CMS 額度</b>、按日扣抵（部分負擔同 16/5/0）；<b>另計</b>交通 115/趟、餐約 150/餐。</div>
+        <div class="row"><b>適合</b>：白天家中無人、長輩需社交/復健、家屬白天上班晚上接手。</div>
+        <div class="src">來源：桃園社會局；台中老人復健醫院日照收費。</div></div></details>
+      <details class="node"><summary><div class="nm">🏥 住宿式機構</div><div class="pay">月費 35,000 起 <small>南北差大</small></div><span class="tag gate">月費原則自費</span></summary>
+        <div class="bd"><div class="row"><b>三種</b>：養護型（無法自理、最多二管）／長照型／護理之家（可三管、氣切、有特約醫師）。</div>
+        <div class="row"><b>月費</b>：養護 35k 起／護理之家 40k 起／高端 5.5–6.5 萬；台北 4.5–8 萬、中南部安養 1.5–3 萬（<b>市場行情、逐家詢價</b>）。</div>
+        <div class="row"><b>補助</b>：長住月費<b>原則自費</b>（四包錢不能付長住月費）；但「<b>住宿式服務補助</b>」每年最高 <b>12 萬</b>（失能 4 級以上＋當年入住滿 180 天＋<b>已取消排富</b>），約折抵每月 1 萬。</div>
+        <div class="row"><b>適合</b>：中重度失能、需 24hr 醫療護理、家中無人力。</div>
+        <div class="src">來源：衛福部 補助提高至 12 萬；1966；pension.tw。</div></div></details>
+      <details class="node"><summary><div class="nm">🛌 喘息服務</div><div class="pay">年額度 32,340 / 48,510</div><span class="tag salary">讓照顧者休息</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：照顧者需短期休息時，短期代顧長輩。對象需長照 2 級以上。</div>
+        <div class="row"><b>額度</b>：2–6 級 每年 32,340／7–8 級 每年 48,510（額度制）。自付 16/5/0。</div>
+        <div class="row"><b>單價</b>：日照全日 1,250、機構住宿 2,310/日、居家喘息 770/2hr…。<b>外籍看護家庭也能用</b>（看護請假/空窗）。</div>
+        <div class="src">來源：愛愛院給付表；家天使 GA09 新制。</div></div></details>
+      <details class="node"><summary><div class="nm">🌏 自聘外籍看護</div><div class="pay">每月約 26,100 <small>首年約 35 萬</small></div><span class="tag gate">24hr・要巴氏量表或新制免評</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：引進移工到家 24hr 貼身照顧。不適用勞基法。</div>
+        <div class="row"><b>門檻</b>：巴氏量表 ≤30（重度）或特定重症；<b>2025/8 新制</b>：80 歲以上、70–79 癌症二期以上<b>免巴氏量表</b>直接申請。</div>
+        <div class="row"><b>成本</b>：基本薪 20,000＋加班＋雇主健保 → 每月固定約 26,100（含膳宿）＋<b>就業安定費 2,000/月</b>（低收/中低/身障免）；首年約 35 萬、之後約 31 萬/年。</div>
+        <div class="row"><b>可併用長照</b>：專業服務、交通、輔具、喘息、到宅沐浴皆可；僅一般家務服務受限。</div>
+        <div class="src">來源：公視 免巴氏新制；衛福部 外看家庭可用長照；康林。</div></div></details>
+      <details class="node"><summary><div class="nm">🏨 醫院看護（住院期間）</div><div class="pay">自費 2,500–3,300/日</div><span class="tag salary">健保共聘 0–1,050/日</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：住院時自費請照服員做生活照顧（護理人員不做這些）。</div>
+        <div class="row"><b>行情</b>：24h 一對一 2,500–3,300/日；12h 2,000–3,000。</div>
+        <div class="row"><b>省錢</b>：問醫院社工室有無「<b>住院整合照護</b>」共聘床（1:3–1:4），民眾部分負擔每日 <b>0–1,050</b>，部分醫院免收。</div>
+        <div class="row"><b>適合</b>：短期住院；<b>長期照顧不適合，太貴</b>。</div>
+        <div class="src">來源：衛福部 住院整合照護；健保署。</div></div></details>
+      <details class="node"><summary><div class="nm">♿ 輔具及居家無障礙</div><div class="pay">每 3 年最高 4 萬</div><span class="tag salary">自付 30/10/0</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：補助購買/租借輔具與住家無障礙改善。需長照 2 級以上＋輔具評估。</div>
+        <div class="row"><b>額度</b>：每 3 年最高 4 萬（逐品項核定、非一次領滿）；一般戶政府補 70%、上限補 28,000。</div>
+        <div class="row"><b>涵蓋</b>：輪椅、氣墊床、照顧床、移位機、沐浴椅；扶手、防滑、斜坡、門檻移除。</div>
+        <div class="src">來源：1966 輔具給付；南山樂齡。</div></div></details>
+      <details class="node"><summary><div class="nm">🚐 交通接送</div><div class="pay">月額度 1,680–2,400</div><span class="tag salary">自付 27/9/0</span></summary>
+        <div class="bd"><div class="row"><b>是什麼</b>：協助往返醫療/復健/洗腎（<b>限醫療目的、非一般外出</b>）。需失能 4 級以上。</div>
+        <div class="row"><b>額度</b>：依城鄉分四區 1,680／1,840／2,000／2,400/月。自付一般 27%（區間 21–30%）／中低 9%／低收 0%。</div>
+        <div class="src">來源：1966 交通接送；台北市社會局。<b>確切比率依分區，向當地照管中心確認。</b></div></div></details>
+    </div>
+  </div>
+
+  <div class="tier">
+    <h2>三身分別 × 各服務：你付多少 %</h2>
+    <table class="cmp"><tr><th>服務</th><th>一般戶</th><th>中低收</th><th>低收</th></tr>
+      <tr><td>照顧及專業（居家/日照）</td><td>16%</td><td>5%</td><td>0%</td></tr>
+      <tr><td>喘息服務</td><td>16%</td><td>5%</td><td>0%</td></tr>
+      <tr><td>交通接送</td><td>27%<small>（21–30）</small></td><td>9%</td><td>0%</td></tr>
+      <tr><td>輔具及居家無障礙</td><td>30%</td><td>10%</td><td>0%</td></tr>
+      <tr><td>住宿式機構補助</td><td colspan="3">每年最高 12 萬（失能 4 級以上、已取消排富、三身分同適用）</td></tr>
+    </table>
+  </div>
+
+  <details class="node" style="margin-top:10px"><summary style="padding:13px 15px"><b>🧠 家屬常見 6 大迷思（點開）</b></summary><div class="bd">
+    <div class="row">1. <b>「機構一定最貴」→ 不必然</b>：十年概算外籍看護約 430 萬、機構約 680 萬——機構通常最貴，但外看隱形成本高、住宿式每年有 12 萬補助可抵。</div>
+    <div class="row">2. <b>「請外籍看護就不能用長照」→ 錯</b>，已放寬，多數服務可併用。</div>
+    <div class="row">3. <b>「四包錢會發現金」→ 錯</b>，只補服務、不折現、不用就沒有。</div>
+    <div class="row">4. <b>「交通接送可隨意外出」→ 錯</b>，限就醫/復健/洗腎，且需失能 4 級以上。</div>
+    <div class="row">5. <b>「輔具 4 萬一次領滿」→ 錯</b>，3 年累計上限、逐品項核定、需評估。</div>
+    <div class="row">6. <b>「住宿式 12 萬人人有」→ 錯</b>，需失能 4 級以上＋當年入住滿 180 天。</div>
+    <div class="src">來源：天下/銀天下 照顧成本比較。</div>
+  </div></details>
+</section>
+
+<div class="foot">
+  🗺️ 長照地圖｜職涯與收費資料查核 2026-07-27｜金額會變動，正式決策請打 <b>1966</b> 或洽當地長照管理中心。<br>
+  相關工具：<a href="calculator.html">居服員收入計算器</a> · <a href="money.html">家屬白話懶人包</a> · <a href="index.html">回首頁</a>
+</div>
+
+<script>
+document.querySelectorAll('.lensbtn').forEach(b=>b.addEventListener('click',()=>{
+  const lens=b.dataset.lens;
+  document.querySelectorAll('.lensbtn').forEach(x=>x.classList.toggle('on',x.dataset.lens===lens));
+  document.querySelectorAll('section[data-lens]').forEach(s=>s.classList.toggle('hidden',s.dataset.lens!==lens));
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</div></body></html>
