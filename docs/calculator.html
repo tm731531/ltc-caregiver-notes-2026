@@ -99,7 +99,7 @@ table.sch tr.tot td{border-top:2px solid var(--line);border-bottom:0;font-weight
 
 <div class="top">
   <h1>🧮 長照給付・拆帳計算器</h1>
-  <p>民眾自付 · 照服員實領 · 一個月實算，三個視角。含合規/違規對照與新人陷阱。<br>
+  <p>民眾自付 · 居服員實領，兩種身分分開算。含合規/違規對照與新人陷阱。<br>
   基準版本 111.02.01｜最後查核 2026-07-26｜<a href="calculator-data-sources.md" style="color:#fff;text-decoration:underline">資料來源逐項</a></p>
 </div>
 
@@ -113,14 +113,13 @@ table.sch tr.tot td{border-top:2px solid var(--line);border-bottom:0;font-weight
   </ul>
 </div>
 <div class="note">
-  <span class="tagf law">法規</span>＝法定值　<span class="tagf mkt">市場</span>＝市場實務、各機構自訂、非法定　<span class="tagf est">估算</span>＝本頁估算模型。
-  三個 Tab <b>共用下方勾選的服務項目</b>，勾一次、切 Tab 看三種算法。
+  <span class="tagf law">法規</span>＝法定值　<span class="tagf mkt">市場</span>＝市場實務、各機構自訂、非法定　<span class="tagf est">估算</span>＝本頁估算模型。<br>
+  兩種身分分開算：<b>民眾</b>勾服務看自付；<b>居服員</b>填接案內容，實領／保障／時薪一起算。
 </div>
 
 <div class="tabs">
   <div class="tab on" data-tab="B">👵 民眾自付<span class="sub">我這等級要付多少</span></div>
-  <div class="tab" data-tab="A">🧑‍⚕️ 照服員實領<span class="sub">拆帳後我拿多少</span></div>
-  <div class="tab" data-tab="W">🗓️ 一個月實算<span class="sub">一週班表 → 月薪水</span></div>
+  <div class="tab" data-tab="W">🧑‍⚕️ 居服員<span class="sub">我能領多少・有沒有保障・時薪</span></div>
 </div>
 
 <!-- ================= 共用：服務項目勾選 ================= -->
@@ -205,32 +204,61 @@ table.sch tr.tot td{border-top:2px solid var(--line);border-bottom:0;font-weight
   </div></details>
 </section>
 
-<!-- ================= TAB A 照服員實領 ================= -->
-<section data-panel="A" class="hidden">
+<!-- ================= TAB W 居服員（合併 實領＋保障＋時薪） ================= -->
+<section data-panel="W" class="hidden">
+  <div class="note">🧑‍⚕️ <b>算居服員收入。</b>先點範例、或自己 +/- 填「你這個月接的案」，下面同時算：<b>實領多少・有沒有保障・換算時薪</b>。「新手/老手」只是範例起點，數字都能改。</div>
+
   <div class="card">
-    <b>② 拆帳成數（你拿服務費的幾 %）<span class="tagf mkt">市場</span></b>
-    <div class="small">業界用「幾拆」講、指機構抽幾成。46拆=員60%、37拆=員70%、28拆=員80%。<b>非法定</b>，各機構自訂；法定下限：全時月薪不得低於 32,000。</div>
+    <b>① 你的接案設定（範例組合，可再改）</b>
+    <div class="seg" id="wPresets" style="margin-top:8px">
+      <label onclick="loadPreset('new')">🌱 新手（簡單居家、無 AA）</label>
+      <label onclick="loadPreset('vet')">💪 老手（含失智/管路/假日＋AA）</label>
+      <label onclick="loadPreset('clear')">🗑️ 清空自己填</label>
+    </div>
+    <label class="fld">拆帳成數（你拿服務費的幾 %）<span class="tagf mkt">市場</span></label>
+    <div class="small">業界用「幾拆」講：46拆=員60%、37拆=員70%、28拆=員80%。非法定、各機構自訂；法定下限：全時月薪不得低於 32,000。</div>
     <input type="range" id="split" min="55" max="82" value="70">
-    <div class="res"><span class="k">你的成數</span><span class="v"><span id="splitTxt">70</span>%　<span class="small" id="splitAlias"></span></span></div>
-    <label class="fld">轉場費 <span class="tagf mkt">市場</span>／交通工時 <span class="tagf law">法規</span></label>
-    <div class="small">交通工時每小時不得低於 140（法定）；實務常見轉場費 50/趟。</div>
-    每趟 <input type="number" id="tripFee" value="50" style="width:80px"> 元 ×
-    <input type="number" id="tripQty" value="0" min="0" style="width:70px"> 趟
+    <div class="res"><span class="k">你拿的成數</span><span class="v"><span id="splitTxt">70</span>%　<span class="small" id="splitAlias"></span></span></div>
+    <label class="fld">轉場費 <span class="tagf mkt">市場</span>（跨案交通；法定不得低於基本工資 <b>196</b>/時）</label>
+    每趟 <input type="number" id="tripFee" value="50" style="width:80px"> 元 × 一個月 <input type="number" id="tripQty" value="0" min="0" style="width:70px"> 趟
     <label class="fld"><input type="checkbox" id="cert"> 加計證照加給（約 +1,000/月）<span class="tagf mkt">市場</span></label>
+    <label class="fld">月薪日照參考（做對照用）</label>
+    <input type="number" id="wSalary" value="34000" style="width:100px"> 元
+  </div>
+
+  <div class="card" id="wTableWrap">
+    <b>② 這個月接的量（可 +/-）</b>
+    <div class="small">整個月接幾次（例：BA07 洗澡 26＝整月洗約 26 次）。「時間」換算工時，<b>AA 加成不佔工時</b>（政府額外加、不扣民眾額度）。</div>
+    <div class="grp">居家照顧 BA</div><div id="wBA" class="items"></div>
+    <div class="grp">喘息 GA</div><div id="wGA" class="items"></div>
+    <div class="grp rev">加成 AA（不佔工時、純加錢）</div><div id="wAA" class="items"></div>
+    <div class="warn" style="margin-top:8px">⚠️ <b>AA 加成怎麼分給你，各機構自訂、常被吃掉</b>（「假日 770 到底歸誰」現場常有爭議）。上工前一定要問「AA 加成怎麼算給我」，這比拆幾成還重要。<b>本頁假設 AA 也照成數拆給你</b>——若機構整碗端走，你的實際收入會比這裡低。</div>
+  </div>
+
+  <div class="card" id="wSchedWrap">
+    <b>③ <span id="wSchedName">阿美（新手）</span>的一週長相（範例示意）</b>
+    <div class="small">只是讓你<b>感受一週的節奏</b>（哪天接誰、幾小時），橘字＝有 AA 加成的日子。<b>這是固定範例，改上面數量不會動它</b>；下面「一個月」＝像這樣的一週過約 4.3 週。</div>
+    <div id="wSched"></div>
   </div>
 
   <div class="card">
-    <div class="res"><span class="k">機構實收服務費（你做的 BA 項目合計）</span><span class="v" id="aBase">$0</span></div>
-    <div class="res"><span class="k">拆帳所得（服務費 × 你的成數）</span><span class="v" id="aSplit">$0</span></div>
+    <b>④ 你這個月實領（帳面）＋換算時薪</b>
+    <div class="res"><span class="k">機構實收服務費（點數合計）</span><span class="v" id="aBase">$0</span></div>
+    <div class="res"><span class="k">拆帳所得（× 你的成數）</span><span class="v" id="aSplit">$0</span></div>
     <div class="res"><span class="k">＋ 轉場費 ＋ 證照加給</span><span class="v" id="aExtra">$0</span></div>
-    <div class="res big"><span class="k">帳面月收入估算</span><span class="v" id="aTake">$0</span></div>
-    <div class="small">「帳面」不等於「實質」——差別在下面的勞退 6%、勞健保、加班費與職災保障。</div>
+    <div class="res big"><span class="k">＝ 帳面月收</span><span class="v" id="aTake">$0</span></div>
+    <div class="res"><span class="k">月工時（≈ 一週 ×4.3）</span><span class="v" id="wHours">0 小時</span></div>
+    <div class="res"><span class="k">月服務次數（不含 AA）</span><span class="v" id="wVisits">0 次</span></div>
+    <div class="res big"><span class="k">⭐ 換算時薪（拆帳所得 ÷ 月工時）</span><span class="v" id="wHourly">—</span></div>
+    <div class="small" id="wSalComp"></div>
+    <div class="small" id="wVisitCmp"></div>
+    <div class="note" style="margin-top:10px">⚠️ 時數/時薪是估算、非官方；每項「時間」為代表值示意。<b>時薪是高估值</b>：分子是帳面 gross（未扣稅、靠行的個人保費自付），分母<b>不含跨案交通、等待、空班</b>（拆帳這些不計酬）——真正到手更低。</div>
   </div>
 
   <div class="card">
-    <b>③ 同樣做這些服務：機構聘僱 vs 工會靠行，差在哪</b>
+    <b>⑤ 有沒有保障：機構聘僱 vs 工會靠行</b>
     <label class="fld">你的月投保薪資（估）<span class="tagf est">估算</span></label>
-    <input type="number" id="insSalary" value="32000" style="width:110px"> 元（用來算勞退 6% 與保費差）
+    <input type="number" id="insSalary" value="32000" style="width:110px"> 元（算勞退 6% 與保費差）
     <div class="cmp">
       <div class="col a"><h4>✅ 機構聘僱</h4>
         <div class="r"><span>雇主提繳勞退 6%</span><b id="cA_pension">$0</b></div>
@@ -245,59 +273,19 @@ table.sch tr.tot td{border-top:2px solid var(--line);border-bottom:0;font-weight
         <div class="r"><span>成數雖高，但少的保障</span><b style="color:var(--bad)">難用錢補回</b></div>
       </div>
     </div>
-    <div class="small">勞退 6% 每月 <span id="pensionYr">$0</span>，<b>40 年約 <span id="pension40">$0</span></b>（未計投資報酬）——這是靠行「換不回」的部分。</div>
+    <div class="small">勞退 6% 每月 <span id="pensionYr">$0</span>，<b>40 年約 <span id="pension40">$0</span></b>（未計投報）——這是靠行「換不回」的部分。</div>
   </div>
 
   <div class="warn">
     <b>🚨 新人最常被吃的兩件事：</b><br>
-    ① <b>加班費被拆帳吃掉</b>：休息日出勤 8 小時、時薪 200，法定加班費應 <b>2,540</b>，但 46 拆帳制只入帳 <b>1,848</b> → 差 692 屬違法短給。<br>
+    ① <b>加班費被拆帳吃掉</b>：休息日出勤 8 小時、時薪 200，法定加班費應 <b>2,540</b>（官方 1.34/1.67 倍率），但 46 拆帳制只入帳約 <b>1,848</b> → 差 692 屬違法短給。<br>
     ② <b>假承攬真僱傭</b>：機構叫你「當老闆」自己去工會保、簽承攬，但只要它管你打卡與服務品質，法律上仍是僱傭。<b>書面寫承攬不算數</b>——勞動部依「人格／經濟／組織」三從屬性實質認定（釋字 740 號＋25 項檢核表）。
     <div class="law">被認定僱傭：機構規避勞健保、勞退 6%、職災、加班費即違法。</div>
   </div>
-</section>
 
-<!-- ================= TAB W 一週實戰 ================= -->
-<section data-panel="W" class="hidden">
-  <div class="note">🧪 <b>接案組合實驗室：算你的時薪。</b>點「範例組合」快速填入，或自己 +/- 調整每項數量，看這個月的<b>工時</b>與<b>換算時薪</b>怎麼變。<b>「新手/老手」只是範例起點，數字都能改。</b>點數含 BA 居家、GA 喘息、AA 加成，皆真實單價。</div>
-
-  <div class="card">
-    <b>① 範例組合（點了填入下表，可再自己改）</b>
-    <div class="seg" id="wPresets" style="margin-top:8px">
-      <label onclick="loadPreset('new')">🌱 新手（簡單居家、無 AA）</label>
-      <label onclick="loadPreset('vet')">💪 老手（含失智/管路/假日＋AA）</label>
-      <label onclick="loadPreset('clear')">🗑️ 清空自己填</label>
-    </div>
-    <label class="fld">拆帳成數（可調，與「照服員實領」Tab 連動）<span class="tagf mkt">市場</span></label>
-    <input type="range" id="wSplit" min="55" max="82" value="70">
-    <div class="res"><span class="k">你拿的成數</span><span class="v"><span id="wPct">70</span>%　<span class="small" id="wSplitAlias"></span></span></div>
-    <label class="fld">月薪日照參考</label>
-    <input type="number" id="wSalary" value="34000" style="width:100px"> 元
-  </div>
-
-  <div class="card" id="wSchedWrap">
-    <b>② <span id="wSchedName">阿美（新手）</span>的「<u>一週</u>」長相（範例）</b>
-    <div class="note" style="margin:8px 0">📌 <b>上面這張是「一週」的樣子</b>（哪天接誰、幾小時），橘字＝有 AA 加成的日子。<br><b>下面 ③④ 是「一個月」</b>＝這樣的一週 <b>過約 4.3 週</b>，所以下面的數字大約是這裡的 <b>4.3 倍</b>（班表最後一列已幫你換算）。</div>
-    <div id="wSched"></div>
-  </div>
-
-  <div class="card" id="wTableWrap">
-    <b>③ 這個月接的量（可 +/-，＝上面一週 ×4.3）</b>
-    <div class="small">數字是「一個月」接幾次（例：BA07 洗澡 26＝整個月洗約 26 次 ≈ 一週 6 次 ×4.3）。「時間」換算工時，<b>AA 加成不佔工時</b>（政府額外加錢、不扣民眾額度）。</div>
-    <div class="grp">居家照顧 BA</div><div id="wBA" class="items"></div>
-    <div class="grp">喘息 GA</div><div id="wGA" class="items"></div>
-    <div class="grp rev">加成 AA（不佔工時、純加錢）</div><div id="wAA" class="items"></div>
-  </div>
-
-  <div class="card">
-    <b>④ 這個月換算</b>
-    <div class="res"><span class="k">月服務次數（不含 AA 加成）</span><span class="v" id="wVisits">0 次</span></div>
-    <div class="res"><span class="k">月工時（≈ 上面一週 ×4.3）</span><span class="v" id="wHours">0 小時</span></div>
-    <div class="res"><span class="k">月總點數（機構收）</span><span class="v" id="wPts">$0</span></div>
-    <div class="res big"><span class="k">拆帳月收（點數 × 成數）</span><span class="v" id="wInc">$0</span></div>
-    <div class="res big"><span class="k">⭐ 換算時薪（月拆帳 ÷ 月工時）</span><span class="v" id="wHourly">—</span></div>
-    <div class="small" id="wSalComp"></div>
-    <div class="small" id="wVisitCmp"></div>
-    <div class="note" style="margin-top:10px">⚠️ <b>時數與時薪是估算，不是官方數據。</b>每項「時間」為代表值示意（併案的實作時間），官方<b>沒有「每日幾小時」的單一統計</b>。<b>月數量＝上面一週 ×4.3（四捨五入），所以月工時 ≈ 一週工時 ×4.3；你自己 +/- 改數量後就會變動。</b>時薪為<b>高估值</b>（未扣跨案交通、等待、空班——拆帳制這些不計酬）。</div>
+  <div class="warn">
+    <b>🚨 帳面時薪騙人的最大破口：個案臨時取消＝當天零收入。</b>個案住院、回診、被家屬帶出去、過年，說取消就沒錢，還要看家屬臉色；請假或被放鳥直接少領。<b>收入不穩比帳面時薪更該擔心。</b>
+    <div class="law">另：這行頭號職災是搬移/移位造成的腰傷與肌肉骨骼傷害——靠行沒職災，出事沒人賠。</div>
   </div>
 
   <details class="acc"><summary>💰 什麼是 AA 加成碼？（老手多賺的關鍵）</summary><div class="bd">
@@ -314,8 +302,8 @@ table.sch tr.tot td{border-top:2px solid var(--line);border-bottom:0;font-weight
   </div></details>
 
   <div class="note" style="border-left-color:var(--rev);background:var(--revbg)">
-    <b>🧠 失智個案的真相（含 AA 加成修正）：</b><span id="wDem"></span>
-    <div class="law">失智照顧靠「安全看視＋陪伴」，時間長、基礎點數密度低；雖可加 AA05(200)＋AA11(50)，仍補不平——除非排在假日(AA09 770)或晚間(AA08 385)。所以<b>拆帳制下失智個案相對不划算，月薪/日照制才最穩定願意接</b>。試試看：在上表加幾個 AA05／AA09，看時薪怎麼跳。</div>
+    <b>🧠 失智個案的真相（點數其實差不多，難在別的）：</b><span id="wDem"></span>
+    <div class="law">失智基礎點數密度跟洗澡個案<b>其實差不多</b>，若真的請到 AA05+AA11 甚至更高。所以失智被閃躲<b>主要不是錢的問題</b>，而是：① 遊走／日落症候群／抗拒攻擊，耗體力和情緒；② 失智最需要「同一個人連續照顧」，拆帳制流動性高剛好相反；③ 家屬期待高、易起衝突；④ <b>AA 困難加計常沒被核定或被機構吃掉</b>，講好的加成不一定拿得到。月薪/日照制較穩定、較願意接。</div>
   </div>
 
   <div class="warn">
@@ -406,11 +394,11 @@ const PPL={
      {d:'週六',v:[]},{d:'週日',v:[]}
     ]},
  C:{name:'秀琴',role:'老手 · 拆帳 · 多元',pay:'split',cls:'C',
-    ds:'居家接滿：失智(+AA05困難+AA11訓練)、管路(+AA06)、沐浴車、假日喘息(GA09+AA09假日加成)。跨區、最操，但 AA 加成讓她賺最多。',
+    ds:'居家接滿：失智(+AA05困難+AA11訓練)、管路(+AA06)、假日喘息(GA09+AA09假日加成)。跨區、最操，但 AA 加成讓她賺最多。',
     src:'錢來自 8 個家庭 + 假日喘息',
     days:[
      {d:'週一',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'張爺·陪同就醫',c:['BA14'],m:90},{n:'陳伯·家務陪伴',c:['BA15-1','BA20','BA22'],m:60}]},
-     {d:'週二',v:[{n:'沐浴車團隊·到宅沐浴',c:['BA09'],m:40},{n:'李奶·進食翻身',c:['BA04','BA10','BA24','BA03'],m:50},{n:'周伯·家務',c:['BA15-1','BA22'],m:45}]},
+     {d:'週二',v:[{n:'孫奶·洗澡備餐',c:['BA07','BA05','BA02'],m:60},{n:'李奶·進食翻身',c:['BA04','BA10','BA24','BA03'],m:50},{n:'周伯·家務',c:['BA15-1','BA22'],m:45}]},
      {d:'週三',v:[{n:'🧠郭奶·失智照顧',c:['BA18','BA18','BA20','BA07','BA05','AA05','AA11'],m:150,aa:1},{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'黃奶·陪伴',c:['BA20','BA22'],m:45}]},
      {d:'週四',v:[{n:'林爺·洗澡',c:['BA07','BA05'],m:50},{n:'吳伯·管路照護',c:['BA17a','BA17c','BA10','BA04','BA03','AA06'],m:60,aa:1},{n:'張爺·陪同就醫',c:['BA14'],m:90}]},
      {d:'週五',v:[{n:'王阿嬤·洗澡',c:['BA07','BA05','BA02'],m:60},{n:'李奶·進食翻身',c:['BA04','BA10','BA24'],m:45},{n:'陳伯·家務陪伴',c:['BA15-1','BA20','BA22'],m:60}]},
@@ -420,7 +408,7 @@ const PPL={
 };
 /* 每項服務的代表工時（分鐘）；AA 加成不佔工時=0 */
 const TIME={BA01:40,BA02:30,BA03:10,BA04:30,BA05:30,BA07:40,BA08:40,BA09:40,BA09a:60,BA10:15,
- BA11:30,BA12:20,BA13:30,BA14:90,'BA15-1':30,'BA16-1':30,BA17a:15,BA17b:15,BA17c:15,BA17d1:10,
+ BA11:30,BA12:20,BA13:30,BA14:150,'BA15-1':30,'BA16-1':30,BA17a:15,BA17b:15,BA17c:15,BA17d1:10,
  BA17d2:15,BA17e:10,BA18:30,BA20:50,BA22:20,BA23:30,BA24:20,GA09:120,GA07:60,
  AA04:0,AA05:0,AA06:0,AA07:0,AA08:0,AA09:0,AA10:0,AA11:0};
 const W_BA=BA.map(x=>x[0]), W_GA=['GA09','GA07'], W_AA=['AA04','AA05','AA06','AA07','AA08','AA09','AA10','AA11'];
@@ -494,23 +482,6 @@ function recalc(){
   const aid=+$('aidAmt').value||0, aidCap=40000;
   const aIn=Math.min(aid,aidCap), aOver=Math.max(0,aid-aidCap);
   $('aidSelf').textContent=fmt(aIn*r.aid+aOver);
-
-  /* --- Tab A --- */
-  const pct=+$('split').value;
-  $('splitTxt').textContent=pct;
-  $('splitAlias').textContent=ALIAS[pct]?('≈'+ALIAS[pct]):'';
-  const splitInc=ba*pct/100;
-  const trip=(+$('tripFee').value||0)*(+$('tripQty').value||0);
-  const certPay=$('cert').checked?1000:0;
-  $('aBase').textContent=fmt(ba);
-  $('aSplit').textContent=fmt(splitInc);
-  $('aExtra').textContent=fmt(trip+certPay);
-  $('aTake').textContent=fmt(splitInc+trip+certPay);
-  const ins=+$('insSalary').value||0, pension=ins*0.06;
-  $('cA_pension').textContent=fmt(pension);
-  $('cA_hidden').textContent=fmt(pension)+' ＋ 職災/加班/特休';
-  $('pensionYr').textContent=fmt(pension);
-  $('pension40').textContent=fmt(pension*12*40);
 }
 
 /* ---------- Tab 切換 ---------- */
@@ -519,17 +490,15 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   t.classList.add('on');
   const tab=t.dataset.tab;
   document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==tab));
-  $('shareCard').classList.toggle('hidden',tab==='W'); // 一週實戰不用共用勾選表
+  $('shareCard').classList.toggle('hidden',tab!=='B'); // 共用勾選表只給民眾自付用
 }));
 document.querySelectorAll('#ident label').forEach(l=>l.addEventListener('click',()=>{
   document.querySelectorAll('#ident label').forEach(x=>x.classList.remove('on'));l.classList.add('on');}));
 
-/* 成數滑桿（照服員實領）同時更新一週實戰 */
-$('split').addEventListener('input',()=>{recalc();recalcW();});
-['cms','trPrice','trQty','aidAmt','tripFee','tripQty','cert','insSalary'].forEach(id=>{
-  const el=$(id);el&&el.addEventListener('input',recalc);
-});
+/* 民眾(B)輸入 → recalc；居服員(W)輸入 → recalcW */
+['cms','trPrice','trQty','aidAmt'].forEach(id=>{const el=$(id);el&&el.addEventListener('input',recalc);});
 document.querySelectorAll('input[name=id]').forEach(el=>el.addEventListener('change',recalc));
+['split','tripFee','tripQty','cert','insSalary','wSalary'].forEach(id=>{const el=$(id);el&&el.addEventListener('input',recalcW);});
 
 /* ---------- Tab W 接案組合實驗室 ---------- */
 function wRow(code){
@@ -572,24 +541,36 @@ function loadPreset(key){
 }
 function recalcW(){
   const pct=+$('split').value;
-  $('wPct').textContent=pct; $('wSplit').value=pct;
-  $('wSplitAlias').textContent=ALIAS[pct]?('≈'+ALIAS[pct]):'';
+  $('splitTxt').textContent=pct;
+  $('splitAlias').textContent=ALIAS[pct]?('≈'+ALIAS[pct]):'';
   let pts=0,min=0,visits=0;
   W_ALL.forEach(c=>{const q=wq[c]||0; pts+=q*(PRICE[c]||0); min+=q*(TIME[c]||0);});
   [...W_BA,...W_GA].forEach(c=>visits+=(wq[c]||0));
-  const hours=min/60, inc=pts*pct/100, hourly=hours>0?inc/hours:0;
-  $('wVisits').textContent=visits+' 次';
+  const hours=min/60, splitInc=pts*pct/100, hourly=hours>0?splitInc/hours:0;
+  const trip=(+$('tripFee').value||0)*(+$('tripQty').value||0), certPay=$('cert').checked?1000:0;
+  const take=splitInc+trip+certPay;
+  // ④ 實領＋時薪
+  $('aBase').textContent=fmt(pts);
+  $('aSplit').textContent=fmt(splitInc);
+  $('aExtra').textContent=fmt(trip+certPay);
+  $('aTake').textContent=fmt(take);
   $('wHours').textContent=hours.toFixed(1)+' 小時';
-  $('wPts').textContent=fmt(pts);
-  $('wInc').textContent=fmt(inc);
+  $('wVisits').textContent=visits+' 次';
   $('wHourly').textContent=hours>0?fmt(hourly)+' /小時':'—';
   $('wVisitCmp').innerHTML=visits>0?`參考：官方居服員平均約 <b>101 次服務/月</b>（衛福部 112 性別分析）；你這組 ${visits} 次/月（「次」口徑未必與官方相同，僅供量級感）。`:'';
   const sal=+$('wSalary').value||0;
-  $('wSalComp').innerHTML=`月薪日照對照：領固定 <b>${fmt(sal)}</b>（時薪約 ${fmt(sal/174)}），綁班表但有完整勞健保＋勞退6%。你這組<b>拆帳月收 ${fmt(inc)}</b>、時薪 <b>${hours>0?fmt(hourly):'—'}</b>${hours>0&&hourly<sal/174?'（比日照時薪低）':''}。`;
-  // 失智洞察（固定示例）
+  $('wSalComp').innerHTML=`月薪日照對照：領固定 <b>${fmt(sal)}</b>（時薪約 ${fmt(sal/174)}），綁班表但有完整勞健保＋勞退6%。你這組<b>帳面月收 ${fmt(take)}</b>、時薪 <b>${hours>0?fmt(hourly):'—'}</b>${hours>0&&hourly<sal/174?'（比日照時薪低）':''}。`;
+  // ⑤ 聘僱 vs 工會
+  const ins=+$('insSalary').value||0, pension=ins*0.06;
+  $('cA_pension').textContent=fmt(pension);
+  $('cA_hidden').textContent=fmt(pension)+' ＋ 職災/加班/特休';
+  $('pensionYr').textContent=fmt(pension);
+  $('pension40').textContent=fmt(pension*12*40);
+  // 失智洞察（固定示例，洗澡密度用頁面 TIME 換算，不寫死）
   const base=['BA18','BA18','BA20','BA07','BA05'].reduce((s,c)=>s+PRICE[c],0), demH=2.5;
   const withAA=base+PRICE.AA05+PRICE.AA11;
-  $('wDem').innerHTML=`一個失智個案約 2.5 小時、基礎服務 ${base} 點（每小時約 <b>${Math.round(base/demH)}</b> 點），加 AA05+AA11 後 ${withAA} 點（每小時約 <b>${Math.round(withAA/demH)}</b> 點）；同時間做洗澡個案每小時約 <b>830</b> 點。`;
+  const washPts=['BA07','BA05','BA02'].reduce((s,c)=>s+PRICE[c],0), washH=['BA07','BA05','BA02'].reduce((s,c)=>s+TIME[c],0)/60;
+  $('wDem').innerHTML=`一個失智個案約 2.5 小時、基礎服務 ${base} 點（每小時約 <b>${Math.round(base/demH)}</b> 點），加 AA05+AA11 後 ${withAA} 點（每小時約 <b>${Math.round(withAA/demH)}</b> 點）；同時間做洗澡個案每小時約 <b>${Math.round(washPts/washH)}</b> 點。`;
 }
 /* W 表格自己的步進器（用 data-wcode / data-wd，跟共用區的 qty 分開） */
 document.addEventListener('click',e=>{
@@ -602,8 +583,6 @@ document.addEventListener('input',e=>{
   if(e.target.matches('#wTableWrap .stp input')){let v=parseInt(e.target.value)||0;if(v<0)v=0;
     wq[e.target.dataset.wcode]=v; e.target.closest('.it').classList.toggle('act',v>0); recalcW();}
 });
-$('wSalary').addEventListener('input',recalcW);
-$('wSplit').addEventListener('input',()=>{$('split').value=$('wSplit').value;recalc();recalcW();});
 
 /* init */
 buildItems(BA,$('baItems'));
