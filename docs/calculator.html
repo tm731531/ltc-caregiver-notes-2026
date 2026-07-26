@@ -83,15 +83,14 @@ table.mini th{background:var(--okbg)}
 .grp{font-weight:700;margin:12px 0 4px;color:var(--accent)}
 .grp.rev{color:var(--rev)}
 #wPresets label{cursor:pointer}
-table.cal{width:100%;border-collapse:collapse;table-layout:fixed;margin:6px 0}
-table.cal th{background:var(--okbg);padding:3px 0;text-align:center;font-size:.74rem;font-weight:700}
-table.cal td{border:1px solid var(--line);height:46px;vertical-align:top;padding:2px 4px;overflow:hidden}
-table.cal td.cal-e{background:var(--bg);border-color:transparent}
-table.cal .dn{display:block;font-size:.72rem;color:var(--muted);text-align:right}
-table.cal .dh{display:block;font-size:.9rem;font-weight:800;color:var(--accent);text-align:center;margin-top:3px}
-table.cal td.cal-off .dh{color:var(--muted);font-weight:400}
-table.cal td.cal-aa{background:var(--revbg)}
-table.cal td.cal-aa .dh{color:var(--rev)}
+table.sch{width:100%;border-collapse:collapse;font-size:.82rem;margin:6px 0}
+table.sch th,table.sch td{border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:top}
+table.sch th{background:var(--okbg);text-align:left}
+table.sch td:first-child{font-weight:700;white-space:nowrap;width:40px}
+table.sch td:last-child{text-align:right;white-space:nowrap;width:52px}
+table.sch tr.aa td{color:var(--rev)}
+table.sch tr.off td{color:var(--muted)}
+table.sch tr.tot td{border-top:2px solid var(--line);border-bottom:0;font-weight:800;color:var(--accent2)}
 .tagf{display:inline-block;font-size:.7rem;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:5px}
 .tagf.law{background:var(--govbg);color:var(--gov)}
 .tagf.mkt{background:var(--revbg);color:var(--rev)}
@@ -100,7 +99,7 @@ table.cal td.cal-aa .dh{color:var(--rev)}
 
 <div class="top">
   <h1>🧮 長照給付・拆帳計算器</h1>
-  <p>照服員實領 · 民眾自付 · 機構分潤，三個視角一起看。含合規/違規對照與新人陷阱。<br>
+  <p>民眾自付 · 照服員實領 · 一個月實算，三個視角。含合規/違規對照與新人陷阱。<br>
   基準版本 111.02.01｜最後查核 2026-07-26｜<a href="calculator-data-sources.md" style="color:#fff;text-decoration:underline">資料來源逐項</a></p>
 </div>
 
@@ -121,7 +120,7 @@ table.cal td.cal-aa .dh{color:var(--rev)}
 <div class="tabs">
   <div class="tab on" data-tab="B">👵 民眾自付<span class="sub">我這等級要付多少</span></div>
   <div class="tab" data-tab="A">🧑‍⚕️ 照服員實領<span class="sub">拆帳後我拿多少</span></div>
-  <div class="tab" data-tab="W">🗓️ 一週實戰<span class="sub">班表×工時×時薪</span></div>
+  <div class="tab" data-tab="W">🗓️ 一個月實算<span class="sub">一週班表 → 月薪水</span></div>
 </div>
 
 <!-- ================= 共用：服務項目勾選 ================= -->
@@ -276,30 +275,29 @@ table.cal td.cal-aa .dh{color:var(--rev)}
   </div>
 
   <div class="card" id="wSchedWrap">
-    <b>② <span id="wSchedName">阿美（新手）</span>的一個月班表（模擬 2026 年八月）</b>
-    <div class="small">整個月哪幾天上工、當天幾小時。<span style="color:var(--rev)">⭐/橘底＝有 AA 加成的日子</span>（失智/管路/假日）；「休」＝休息。<b>這張月曆加總＝下面「這個月」的量</b>。</div>
+    <b>② <span id="wSchedName">阿美（新手）</span>的「<u>一週</u>」長相（範例）</b>
+    <div class="note" style="margin:8px 0">📌 <b>上面這張是「一週」的樣子</b>（哪天接誰、幾小時），橘字＝有 AA 加成的日子。<br><b>下面 ③④ 是「一個月」</b>＝這樣的一週 <b>過約 4.3 週</b>，所以下面的數字大約是這裡的 <b>4.3 倍</b>（班表最後一列已幫你換算）。</div>
     <div id="wSched"></div>
-    <div class="small">👇 下面可 +/- 調數量試算薪水；改了數量後，月曆仍顯示原範例。</div>
   </div>
 
   <div class="card" id="wTableWrap">
-    <b>③ 這個月接的量（可 +/-，＝上面月曆加總）</b>
-    <div class="small">數字是「一個月」接幾次（例：BA07 洗澡 26＝整個八月洗 26 次）。「時間」換算工時，<b>AA 加成不佔工時</b>（政府額外加錢、不扣民眾額度）。</div>
+    <b>③ 這個月接的量（可 +/-，＝上面一週 ×4.3）</b>
+    <div class="small">數字是「一個月」接幾次（例：BA07 洗澡 26＝整個月洗約 26 次 ≈ 一週 6 次 ×4.3）。「時間」換算工時，<b>AA 加成不佔工時</b>（政府額外加錢、不扣民眾額度）。</div>
     <div class="grp">居家照顧 BA</div><div id="wBA" class="items"></div>
     <div class="grp">喘息 GA</div><div id="wGA" class="items"></div>
     <div class="grp rev">加成 AA（不佔工時、純加錢）</div><div id="wAA" class="items"></div>
   </div>
 
   <div class="card">
-    <b>④ 這個月換算（八月）</b>
+    <b>④ 這個月換算</b>
     <div class="res"><span class="k">月服務次數（不含 AA 加成）</span><span class="v" id="wVisits">0 次</span></div>
-    <div class="res"><span class="k">月工時（＝上面月曆加總）</span><span class="v" id="wHours">0 小時</span></div>
+    <div class="res"><span class="k">月工時（≈ 上面一週 ×4.3）</span><span class="v" id="wHours">0 小時</span></div>
     <div class="res"><span class="k">月總點數（機構收）</span><span class="v" id="wPts">$0</span></div>
     <div class="res big"><span class="k">拆帳月收（點數 × 成數）</span><span class="v" id="wInc">$0</span></div>
     <div class="res big"><span class="k">⭐ 換算時薪（月拆帳 ÷ 月工時）</span><span class="v" id="wHourly">—</span></div>
     <div class="small" id="wSalComp"></div>
     <div class="small" id="wVisitCmp"></div>
-    <div class="note" style="margin-top:10px">⚠️ <b>時數與時薪是估算，不是官方數據。</b>每項「時間」為代表值示意（併案的實作時間），官方<b>沒有「每日幾小時」的單一統計</b>。<b>剛點範例時，月工時＝上面月曆加總；你自己 +/- 改數量後就會變動。</b>時薪為<b>高估值</b>（未扣跨案交通、等待、空班——拆帳制這些不計酬）。</div>
+    <div class="note" style="margin-top:10px">⚠️ <b>時數與時薪是估算，不是官方數據。</b>每項「時間」為代表值示意（併案的實作時間），官方<b>沒有「每日幾小時」的單一統計</b>。<b>月數量＝上面一週 ×4.3（四捨五入），所以月工時 ≈ 一週工時 ×4.3；你自己 +/- 改數量後就會變動。</b>時薪為<b>高估值</b>（未扣跨案交通、等待、空班——拆帳制這些不計酬）。</div>
   </div>
 
   <details class="acc"><summary>💰 什麼是 AA 加成碼？（老手多賺的關鍵）</summary><div class="bd">
@@ -428,10 +426,8 @@ const TIME={BA01:40,BA02:30,BA03:10,BA04:30,BA05:30,BA07:40,BA08:40,BA09:40,BA09
 const W_BA=BA.map(x=>x[0]), W_GA=['GA09','GA07'], W_AA=['AA04','AA05','AA06','AA07','AA08','AA09','AA10','AA11'];
 const W_ALL=[...W_BA,...W_GA,...W_AA];
 const wq={};
-/* 模擬 2026 年八月：把每個工作日的服務照實排進整月 → 得「這個月」的碼別數量 */
-const CAL_Y=2026, CAL_M=7, CAL_DAYS=31; // 8月(月份0-indexed)
-const pDayOf=(p,day)=>p.days[(new Date(CAL_Y,CAL_M,day).getDay()+6)%7]; // 週一=index0
-function personaMonthlyQty(p){const q={};for(let day=1;day<=CAL_DAYS;day++){(pDayOf(p,day).v||[]).forEach(v=>v.c.forEach(c=>q[c]=(q[c]||0)+1));}return q;}
+/* 一週排班 ×4.3 週 → 「這個月」的碼別數量。班表顯示一週、沙盒/輸出是一個月 */
+function personaMonthlyQty(p){const q={};p.days.forEach(d=>(d.v||[]).forEach(v=>v.c.forEach(c=>q[c]=(q[c]||0)+1)));Object.keys(q).forEach(c=>q[c]=Math.round(q[c]*WEEKS));return q;}
 
 const qty={};           // code -> quantity (shared across tabs)
 const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
@@ -555,22 +551,16 @@ function renderSchedule(){
   wrap.classList.remove('hidden');
   const p=curPreset==='new'?PPL.A:PPL.C;
   $('wSchedName').textContent=curPreset==='new'?'阿美（新手）':'秀琴（老手）';
-  const first=new Date(CAL_Y,CAL_M,1).getDay(); // 0=週日
-  let html='<table class="cal"><tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr><tr>';
-  let col=0;
-  for(let i=0;i<first;i++){html+='<td class="cal-e"></td>';col++;}
-  for(let day=1;day<=CAL_DAYS;day++){
-    const d=pDayOf(p,day), vis=d.v||[];
-    if(!vis.length){html+=`<td class="cal-off"><span class="dn">${day}</span><span class="dh">休</span></td>`;}
-    else{
-      const mins=vis.reduce((s,v)=>s+v.c.reduce((a,c)=>a+(TIME[c]||0),0),0), aa=vis.some(v=>v.aa);
-      html+=`<td class="${aa?'cal-aa':''}"><span class="dn">${day}${aa?' ⭐':''}</span><span class="dh">${(mins/60).toFixed(1)}h</span></td>`;
-    }
-    if(++col%7===0)html+='</tr><tr>';
-  }
-  while(col%7!==0){html+='<td class="cal-e"></td>';col++;}
-  html+='</tr></table>';
-  $('wSched').innerHTML=html;
+  let rows='',weekMin=0;
+  p.days.forEach(d=>{
+    if(!d.v||!d.v.length){rows+=`<tr class="off"><td>${d.d}</td><td>休息</td><td>—</td></tr>`;return;}
+    const mins=d.v.reduce((s,v)=>s+v.c.reduce((a,c)=>a+(TIME[c]||0),0),0), aa=d.v.some(v=>v.aa);
+    weekMin+=mins;
+    rows+=`<tr class="${aa?'aa':''}"><td>${d.d}</td><td>${d.v.map(v=>v.n).join('、')}</td><td>${(mins/60).toFixed(1)}h</td></tr>`;
+  });
+  const wh=weekMin/60;
+  rows+=`<tr class="tot"><td>合計</td><td>一週 ${wh.toFixed(1)}h ×4.3 週 ≈</td><td>${Math.round(wh*WEEKS)}h/月</td></tr>`;
+  $('wSched').innerHTML=`<table class="sch"><tr><th>日</th><th>接誰 · 做什麼</th><th>時數</th></tr>${rows}</table>`;
 }
 function loadPreset(key){
   W_ALL.forEach(c=>wq[c]=0);
