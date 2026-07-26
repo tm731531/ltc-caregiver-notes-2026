@@ -83,6 +83,13 @@ table.mini th{background:var(--okbg)}
 .grp{font-weight:700;margin:12px 0 4px;color:var(--accent)}
 .grp.rev{color:var(--rev)}
 #wPresets label{cursor:pointer}
+table.sch{width:100%;border-collapse:collapse;font-size:.82rem;margin:6px 0}
+table.sch th,table.sch td{border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:top}
+table.sch th{background:var(--okbg);text-align:left}
+table.sch td:first-child{font-weight:700;white-space:nowrap;width:40px}
+table.sch td:last-child{text-align:right;white-space:nowrap;width:48px}
+table.sch tr.aa td{color:var(--rev)}
+table.sch tr.off td{color:var(--muted)}
 .tagf{display:inline-block;font-size:.7rem;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:5px}
 .tagf.law{background:var(--govbg);color:var(--gov)}
 .tagf.mkt{background:var(--revbg);color:var(--rev)}
@@ -112,8 +119,7 @@ table.mini th{background:var(--okbg)}
 <div class="tabs">
   <div class="tab on" data-tab="B">👵 民眾自付<span class="sub">我這等級要付多少</span></div>
   <div class="tab" data-tab="A">🧑‍⚕️ 照服員實領<span class="sub">拆帳後我拿多少</span></div>
-  <div class="tab" data-tab="C">🏢 機構分潤<span class="sub">這筆錢怎麼分</span></div>
-  <div class="tab" data-tab="W">🗓️ 一週實戰<span class="sub">排班×時數×薪資</span></div>
+  <div class="tab" data-tab="W">🗓️ 一週實戰<span class="sub">班表×工時×時薪</span></div>
 </div>
 
 <!-- ================= 共用：服務項目勾選 ================= -->
@@ -126,6 +132,7 @@ table.mini th{background:var(--okbg)}
 
 <!-- ================= TAB B 民眾自付 ================= -->
 <section data-panel="B">
+  <div class="note">💡 <b>先懂「失能點數」</b>：照顧管理專員到府評估長輩的失能程度，定一個 <b>CMS 等級（2–8 級）</b>；等級越高，政府每月給的<b>額度（點數）越多</b>。這額度就是政府幫你出的服務錢，用在下面勾的服務上，<b>用超過就要自己全額付</b>。</div>
   <div class="card">
     <b>② 你的失能等級與身分別</b>
     <label class="fld">CMS 失能等級（照顧管理專員評估）</label>
@@ -183,6 +190,18 @@ table.mini th{background:var(--okbg)}
     機構標榜「幫你免收／減免自付額」來搶個案 → 違反《長照服務法》第 49 條，可罰 <b>3–15 萬</b>並追收擅自減免的費用。長遠可能連累你的服務被停約中斷。
     <div class="law">部分負擔是法定義務，由特約單位服務後向你收取，不得擅自減免作招攬。</div>
   </div>
+
+  <details class="acc"><summary>🏢 為什麼要透過機構？機構提供什麼（你的自付額也付了這些）</summary><div class="bd">
+    你不是直接付錢給照服員個人，而是透過<b>特約長照機構</b>媒合。機構抽的那一成，換到的是：
+    <ul style="margin:6px 0;padding-left:20px">
+      <li><b>督導</b>：專業督導定期到府/電話關心，把關照服員的照顧品質，你有問題可反映。</li>
+      <li><b>教育訓練</b>：照服員的在職訓練、繼續教育，服務更專業。</li>
+      <li><b>排班與代班</b>：照服員請假時安排替代人力，不會突然沒人照顧。</li>
+      <li><b>照服員的勞健保、勞退 6%、職災</b>：由機構（雇主）負擔，照服員有保障、流動率較低。</li>
+      <li><b>代核銷、行政、爭議處理</b>：跟政府請款、紀錄、糾紛都由機構處理。</li>
+    </ul>
+    這也是為什麼「機構幫你免自付額」不合理——沒有這筆，督導與品質的成本就沒了。
+  </div></details>
 </section>
 
 <!-- ================= TAB A 照服員實領 ================= -->
@@ -236,39 +255,6 @@ table.mini th{background:var(--okbg)}
   </div>
 </section>
 
-<!-- ================= TAB C 機構分潤 ================= -->
-<section data-panel="C" class="hidden">
-  <div class="card">
-    <b>② 分潤設定</b>
-    <div class="small">拆帳成數與 Tab A 連動（改一邊、另一邊同步）。</div>
-    <input type="range" id="splitC" min="55" max="82" value="70">
-    <div class="res"><span class="k">付給照服員的成數</span><span class="v"><span id="splitCTxt">70</span>%</span></div>
-    <label class="fld">雇主端保費+勞退負擔（佔員工投保薪資%）<span class="tagf est">估算</span></label>
-    <div class="small">雇主端勞保+健保+勞退 6% 合計約佔人力成本 20–25%，此處以「員工拆帳所得 ×」估算。</div>
-    <input type="range" id="empCost" min="0" max="30" value="20">
-    <span class="res" style="display:inline">雇主負擔約 <b id="empCostTxt">20</b>%</span>
-  </div>
-
-  <div class="card">
-    <div class="res"><span class="k">機構實收服務費（Σ 給付點數）</span><span class="v" id="cBase">$0</span></div>
-    <div class="res"><span class="k">－ 付給照服員（拆帳）</span><span class="v" id="cWorker">$0</span></div>
-    <div class="res"><span class="k">= 機構抽成</span><span class="v" id="cCut">$0</span></div>
-    <div class="res self"><span class="k">－ 雇主保費+勞退 6%（估）</span><span class="v" id="cIns">$0</span></div>
-    <div class="res big"><span class="k">機構淨留（未計督導/行政/訓練）</span><span class="v" id="cNet">$0</span></div>
-    <div class="small" id="cRemark"></div>
-  </div>
-
-  <div class="ok" id="cContradiction">
-    <b>💡 結構矛盾：</b>當你把成數拉到 <b>80%（28 拆）</b>，機構抽成只剩 20%，扣掉雇主端勞健保+勞退（約 20%）就幾乎歸零、沒有督導與管理空間。<b>所以高成數常伴隨「叫你自己去工會投保」</b>——把保費成本轉嫁給照服員，這正是新人被「高拆帳」吸引卻少了保障的根源。
-  </div>
-
-  <div class="warn">
-    <b>🚨 機構端違規＝重罰：</b><br>
-    虛報浮報服務費用、資訊系統登載不實、找人頭冒名核銷 → <b>不予支付</b>（特約辦法 §42），查獲追償另加計 <b>5–10 倍違約金</b>（重複違規 10–20 倍，§36）；記點可停止派案 30–180 日，累點終止特約、代表人 3 年內不予特約（§31、§32、§8）。
-    <div class="law">實例：高雄某協會以 25 名照服員名義偽造服務紀錄，詐領長照給付逾千萬（已移送、追回款項；最終刑度未定，不逕稱判刑）。</div>
-  </div>
-</section>
-
 <!-- ================= TAB W 一週實戰 ================= -->
 <section data-panel="W" class="hidden">
   <div class="note">🧪 <b>接案組合實驗室：算你的時薪。</b>點「範例組合」快速填入，或自己 +/- 調整每項數量，看這個月的<b>工時</b>與<b>換算時薪</b>怎麼變。<b>「新手/老手」只是範例起點，數字都能改。</b>點數含 BA 居家、GA 喘息、AA 加成，皆真實單價。</div>
@@ -284,8 +270,15 @@ table.mini th{background:var(--okbg)}
     <span class="small">目前 <b id="wPct">70</b>%。月薪日照參考 <input type="number" id="wSalary" value="34000" style="width:90px"> 元。</span>
   </div>
 
+  <div class="card" id="wSchedWrap">
+    <b>② <span id="wSchedName">阿美（新手）</span>的一週班表</b>
+    <div class="small">這個範例組合的<b>時間長相</b>：哪天、接誰、做什麼、幾小時。橘色列=有 AA 加成（失智/管路/假日）。</div>
+    <div id="wSched"></div>
+    <div class="small">👇 下面可 +/- 調數量試算時薪；改了數量後，班表仍顯示原範例的時間分布。</div>
+  </div>
+
   <div class="card" id="wTableWrap">
-    <b>② 這個月接的量（可 +/-）</b>
+    <b>③ 這個月接的量（可 +/-）</b>
     <div class="small">「時間」用來換算工時。<b>AA 加成不佔工時</b>（政府額外加錢、不扣民眾額度）。</div>
     <div class="grp">居家照顧 BA</div><div id="wBA" class="items"></div>
     <div class="grp">喘息 GA</div><div id="wGA" class="items"></div>
@@ -293,7 +286,7 @@ table.mini th{background:var(--okbg)}
   </div>
 
   <div class="card">
-    <b>③ 這個月換算</b>
+    <b>④ 這個月換算（工時＋時薪）</b>
     <div class="res"><span class="k">月總點數（機構收）</span><span class="v" id="wPts">$0</span></div>
     <div class="res"><span class="k">月總工時（Σ 數量×時間）</span><span class="v" id="wHours">0 小時</span></div>
     <div class="res"><span class="k">拆帳月收（點數 × 成數）</span><span class="v" id="wInc">$0</span></div>
@@ -512,19 +505,6 @@ function recalc(){
   $('cA_hidden').textContent=fmt(pension)+' ＋ 職災/加班/特休';
   $('pensionYr').textContent=fmt(pension);
   $('pension40').textContent=fmt(pension*12*40);
-
-  /* --- Tab C --- */
-  const pctC=+$('splitC').value; $('splitCTxt').textContent=pctC;
-  const empPct=+$('empCost').value; $('empCostTxt').textContent=empPct;
-  const worker=ba*pctC/100, cut=ba*(1-pctC/100), insCost=worker*empPct/100, net=cut-insCost;
-  $('cBase').textContent=fmt(ba);
-  $('cWorker').textContent=fmt(worker);
-  $('cCut').textContent=fmt(cut);
-  $('cIns').textContent=fmt(insCost);
-  $('cNet').textContent=fmt(net);
-  $('cRemark').innerHTML = net<0
-    ? '<b style="color:var(--bad)">機構淨留為負</b>：這個成數下，抽成扣掉雇主保費就虧，機構要嘛壓低你投保級距、要嘛叫你去工會自保。'
-    : '尚未扣督導、排班行政、教育訓練、核銷人力等固定成本。';
 }
 
 /* ---------- Tab 切換 ---------- */
@@ -538,10 +518,9 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
 document.querySelectorAll('#ident label').forEach(l=>l.addEventListener('click',()=>{
   document.querySelectorAll('#ident label').forEach(x=>x.classList.remove('on'));l.classList.add('on');}));
 
-/* 成數 A/C 連動 */
-$('split').addEventListener('input',()=>{$('splitC').value=$('split').value;recalc();recalcW();});
-$('splitC').addEventListener('input',()=>{$('split').value=$('splitC').value;recalc();recalcW();});
-['cms','trPrice','trQty','aidAmt','tripFee','tripQty','cert','insSalary','empCost'].forEach(id=>{
+/* 成數滑桿（照服員實領）同時更新一週實戰 */
+$('split').addEventListener('input',()=>{recalc();recalcW();});
+['cms','trPrice','trQty','aidAmt','tripFee','tripQty','cert','insSalary'].forEach(id=>{
   const el=$(id);el&&el.addEventListener('input',recalc);
 });
 document.querySelectorAll('input[name=id]').forEach(el=>el.addEventListener('change',recalc));
@@ -559,11 +538,28 @@ function buildWTable(){
   $('wGA').innerHTML=W_GA.map(wRow).join('');
   $('wAA').innerHTML=W_AA.map(wRow).join('');
 }
+let curPreset='new';
+function renderSchedule(){
+  const wrap=$('wSchedWrap');
+  if(!curPreset){wrap.classList.add('hidden');return;}
+  wrap.classList.remove('hidden');
+  const p=curPreset==='new'?PPL.A:PPL.C;
+  $('wSchedName').textContent=curPreset==='new'?'阿美（新手）':'秀琴（老手）';
+  let rows='';
+  p.days.forEach(d=>{
+    if(!d.v||!d.v.length){rows+=`<tr class="off"><td>${d.d}</td><td>休息</td><td>—</td></tr>`;return;}
+    const mins=d.v.reduce((s,v)=>s+v.m,0), aa=d.v.some(v=>v.aa);
+    rows+=`<tr class="${aa?'aa':''}"><td>${d.d}</td><td>${d.v.map(v=>v.n).join('、')}</td><td>${(mins/60).toFixed(1)}h</td></tr>`;
+  });
+  $('wSched').innerHTML=`<table class="sch"><tr><th>日</th><th>接誰 · 做什麼</th><th>時數</th></tr>${rows}</table>`;
+}
 function loadPreset(key){
   W_ALL.forEach(c=>wq[c]=0);
   if(key==='new')  Object.assign(wq,personaMonthlyQty(PPL.A));
   if(key==='vet')  Object.assign(wq,personaMonthlyQty(PPL.C));
-  buildWTable();recalcW();
+  curPreset = key==='clear'?null:key;
+  document.querySelectorAll('#wPresets label').forEach(l=>l.classList.toggle('on',l.getAttribute('onclick')===`loadPreset('${key}')`));
+  renderSchedule();buildWTable();recalcW();
 }
 function recalcW(){
   const pct=+$('split').value; $('wPct').textContent=pct;
