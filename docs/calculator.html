@@ -1,0 +1,450 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>長照給付・拆帳計算器</title>
+<!--
+  資料版本：長照給付附表四 111.02.01 生效｜最後查核 2026-07-26
+  每個數字的來源與可信度見同目錄 calculator-data-sources.md
+  教育用途，實際給付以各縣市長照管理中心核定為準。
+-->
+<style>
+:root{--bg:#f4f6f5;--fg:#1f2a28;--card:#fff;--muted:#6b7a76;--line:#e0e6e3;
+ --accent:#1f7a4d;--accent2:#0d6e6e;--ok:#1f7a4d;--okbg:#e8f5ee;--bad:#c0392b;--badbg:#fdecea;
+ --rev:#a85a00;--revbg:#fff3e0;--gov:#0d6e6e;--govbg:#e4f3f3;}
+@media(prefers-color-scheme:dark){:root{--bg:#161a19;--fg:#e6ece9;--card:#202624;--muted:#9aa8a3;
+ --line:#333c39;--accent:#4fc98a;--accent2:#3fb9b9;--okbg:#173a2a;--badbg:#3a1f1c;--revbg:#33280f;
+ --gov:#3fb9b9;--govbg:#13302f;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+ font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+ line-height:1.7;font-size:16.5px}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 70px}
+a{color:var(--accent)}
+.top{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;
+ padding:22px;margin-bottom:16px}
+.top h1{margin:0 0 6px;font-size:1.4rem}.top p{margin:0;opacity:.94;font-size:.9rem}
+.note{background:var(--revbg);border-left:4px solid var(--rev);border-radius:9px;padding:11px 15px;margin:12px 0;font-size:.88rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.chip{display:inline-block;background:var(--accent2);color:#fff;border-radius:20px;padding:2px 11px;font-size:.72rem;font-weight:700;margin-right:6px}
+.foot{color:var(--muted);font-size:.8rem;margin-top:36px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+h2.ch{color:var(--accent);border-left:5px solid var(--accent);padding-left:10px;margin:26px 0 6px;font-size:1.18rem}
+.hidden{display:none!important}
+/* tabs */
+.tabs{display:flex;gap:8px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:8;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{flex:1 1 auto;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 10px;cursor:pointer;text-align:center;font-weight:700;font-size:.95rem;transition:.14s;color:var(--fg)}
+.tab .sub{display:block;font-weight:400;font-size:.74rem;color:var(--muted);margin-top:2px}
+.tab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tab.on .sub{color:rgba(255,255,255,.85)}
+/* item picker */
+.items{display:grid;grid-template-columns:1fr;gap:6px;margin:8px 0}
+.it{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:var(--card);font-size:.9rem}
+.it.act{border-color:var(--accent);background:var(--okbg)}
+.it .nm{flex:1 1 auto;min-width:0}
+.it .cd{font-weight:700;color:var(--accent2);font-size:.82rem;margin-right:5px}
+.it .pr{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.stp{display:flex;align-items:center;gap:0;flex:0 0 auto}
+.stp button{width:28px;height:28px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:7px;font-size:1.1rem;cursor:pointer;line-height:1;font-family:inherit}
+.stp input{width:42px;text-align:center;border:1px solid var(--line);border-radius:7px;height:28px;margin:0 4px;background:var(--card);color:var(--fg);font-size:.9rem}
+.small{font-size:.82rem;color:var(--muted)}
+label.fld{display:block;margin:10px 0 3px;font-weight:600;font-size:.9rem}
+select,input[type=number]{font-size:.95rem;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--fg);font-family:inherit;max-width:100%}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.seg label{border:1px solid var(--line);border-radius:9px;padding:7px 12px;cursor:pointer;background:var(--card);font-size:.88rem}
+.seg input{display:none}
+.seg label.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+/* result rows */
+.res{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px dashed var(--line);gap:10px}
+.res:last-child{border-bottom:0}
+.res .k{font-size:.92rem}.res .v{font-weight:800;font-size:1.05rem;white-space:nowrap}
+.res.big .v{font-size:1.5rem;color:var(--accent)}
+.res.gov .v{color:var(--gov)}.res.self .v{color:var(--bad)}
+.bar{height:14px;border-radius:8px;background:var(--line);overflow:hidden;margin:8px 0 4px;display:flex}
+.bar i{display:block;height:100%}
+.bar i.u{background:var(--accent)}.bar i.o{background:var(--bad)}
+.warn{background:var(--badbg);border-left:4px solid var(--bad);border-radius:9px;padding:11px 14px;margin:12px 0;font-size:.86rem}
+.warn b{color:var(--bad)}
+.ok{background:var(--okbg);border-left:4px solid var(--ok);border-radius:9px;padding:11px 14px;margin:12px 0;font-size:.86rem}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.cmp .col{border:1px solid var(--line);border-radius:11px;padding:12px;background:var(--card)}
+.cmp .col h4{margin:0 0 8px;font-size:.95rem}
+.cmp .col.a h4{color:var(--accent)}.cmp .col.b h4{color:var(--rev)}
+.cmp .r{display:flex;justify-content:space-between;font-size:.84rem;padding:4px 0;border-bottom:1px dashed var(--line);gap:6px}
+.cmp .r:last-child{border-bottom:0}
+.acc{border:1px solid var(--line);border-radius:10px;margin:8px 0;overflow:hidden;background:var(--card)}
+.acc summary{padding:11px 14px;cursor:pointer;font-weight:700;font-size:.92rem;list-style:none}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::before{content:"▸ ";color:var(--accent)}
+.acc[open] summary::before{content:"▾ "}
+.acc .bd{padding:0 14px 12px;font-size:.86rem}
+.law{font-size:.78rem;color:var(--muted);margin-top:3px}
+table.mini{width:100%;border-collapse:collapse;font-size:.82rem;margin:6px 0}
+table.mini th,table.mini td{border:1px solid var(--line);padding:5px 7px;text-align:center}
+table.mini th{background:var(--okbg)}
+.tagf{display:inline-block;font-size:.7rem;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:5px}
+.tagf.law{background:var(--govbg);color:var(--gov)}
+.tagf.mkt{background:var(--revbg);color:var(--rev)}
+.tagf.est{background:var(--line);color:var(--muted)}
+</style></head><body><div class="wrap">
+
+<div class="top">
+  <h1>🧮 長照給付・拆帳計算器</h1>
+  <p>照服員實領 · 民眾自付 · 機構分潤，三個視角一起看。含合規/違規對照與新人陷阱。<br>
+  基準版本 111.02.01｜最後查核 2026-07-26｜<a href="calculator-data-sources.md" style="color:#fff;text-decoration:underline">資料來源逐項</a></p>
+</div>
+
+<div class="warn" style="border-left-color:var(--rev);background:var(--revbg)">
+  <b style="color:var(--rev)">⏱️ 時效性免責聲明 — 一定要看</b><br>
+  本計算器的給付金額、部分負擔比率、拆帳成數、罰則條號，<b>全部是「2026-07-26 查核當下」的資料</b>。長照給付支付基準、基本工資、法規條文<b>都會改版</b>（衛福部 2026/9 起另建給付價格審議機制、長照 3.0 修法進行中）。
+  <ul style="margin:6px 0 0;padding-left:20px">
+    <li>使用前請以 <b>1966 長照專線</b>或<b>當地長照管理中心</b>核定的最新公告為準。</li>
+    <li>正式用途（申請、申訴、勞資爭議）請回到<a href="calculator-data-sources.md">原始法規來源</a>逐條複核，勿以本頁數字為法律依據。</li>
+    <li>本頁<b>僅供教育與理解結構</b>，作者不對計算結果之正確性或時效性負責。</li>
+  </ul>
+</div>
+<div class="note">
+  <span class="tagf law">法規</span>＝法定值　<span class="tagf mkt">市場</span>＝市場實務、各機構自訂、非法定　<span class="tagf est">估算</span>＝本頁估算模型。
+  三個 Tab <b>共用下方勾選的服務項目</b>，勾一次、切 Tab 看三種算法。
+</div>
+
+<div class="tabs">
+  <div class="tab on" data-tab="B">👵 民眾自付<span class="sub">我這等級要付多少</span></div>
+  <div class="tab" data-tab="A">🧑‍⚕️ 照服員實領<span class="sub">拆帳後我拿多少</span></div>
+  <div class="tab" data-tab="C">🏢 機構分潤<span class="sub">這筆錢怎麼分</span></div>
+</div>
+
+<!-- ================= 共用：服務項目勾選 ================= -->
+<div class="card">
+  <b>① 勾選這個月的居家照顧服務（BA 碼）</b>
+  <div class="small">單價為「一般區」法定支付價格。<span class="tagf law">法規</span>附表四 111.02.01。原民區/離島另有加成價，此處以一般區計。</div>
+  <div id="baItems" class="items"></div>
+  <div class="res big"><span class="k">機構實收服務費合計（政府給付＋民眾自付）</span><span class="v" id="baTotal">$0</span></div>
+</div>
+
+<!-- ================= TAB B 民眾自付 ================= -->
+<section data-panel="B">
+  <div class="card">
+    <b>② 你的失能等級與身分別</b>
+    <label class="fld">CMS 失能等級（照顧管理專員評估）</label>
+    <select id="cms">
+      <option value="2">第 2 級 — 月額度 10,020</option>
+      <option value="3">第 3 級 — 月額度 15,460</option>
+      <option value="4">第 4 級 — 月額度 18,580</option>
+      <option value="5" selected>第 5 級 — 月額度 24,100</option>
+      <option value="6">第 6 級 — 月額度 28,070</option>
+      <option value="7">第 7 級 — 月額度 32,090</option>
+      <option value="8">第 8 級 — 月額度 36,180</option>
+    </select>
+    <div class="small">第 1 級不具長照給付資格。照顧(B)與專業(C)服務<b>共用同一月額度</b>。</div>
+    <label class="fld">福利身分別</label>
+    <div class="seg" id="ident">
+      <label class="on"><input type="radio" name="id" value="general" checked>一般戶（自付 16%）</label>
+      <label><input type="radio" name="id" value="midlow">長照中低收（5%）</label>
+      <label><input type="radio" name="id" value="low">長照低收（0%）</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <b>照顧及專業服務 — 這個月你要付多少</b>
+    <div class="small">可加勾「專業服務 C 碼」（由治療師/護理師/營養師提供，與居家照顧共用同一額度）。</div>
+    <details class="acc"><summary>加入專業服務 C 碼（選填）</summary><div class="bd"><div id="cItems" class="items"></div></div></details>
+    <div class="bar" id="capBar"><i class="u" style="width:0"></i><i class="o" style="width:0"></i></div>
+    <div class="small" id="capTxt"></div>
+    <div class="res gov"><span class="k">政府補助</span><span class="v" id="bGov">$0</span></div>
+    <div class="res self"><span class="k">你自付（額度內 × 身分別比率）</span><span class="v" id="bSelfIn">$0</span></div>
+    <div class="res self" id="bOverRow"><span class="k">⚠️ 超額自付（超過月額度部分 100% 全付）</span><span class="v" id="bSelfOver">$0</span></div>
+    <div class="res big self"><span class="k">你這個月自付合計</span><span class="v" id="bSelfTotal">$0</span></div>
+  </div>
+
+  <details class="acc"><summary>其他三類給付（交通／喘息／輔具）</summary><div class="bd">
+    <label class="fld">🚐 交通接送 DA01 <span class="tagf est">估算</span></label>
+    <div class="small">單價由地方主管機關訂定，無全國統一值；預設汐止示例 1,840/趟。自付比率：一般 27%／中低 9%／低 0%。</div>
+    單價 <input type="number" id="trPrice" value="1840" style="width:90px"> 元 ×
+    趟數 <input type="number" id="trQty" value="0" min="0" style="width:70px"> 趟
+    <div class="res self"><span class="k">交通自付</span><span class="v" id="trSelf">$0</span></div>
+
+    <label class="fld">🛏️ 喘息服務（G 碼，年額度）</label>
+    <div class="small">年額度：2–6 級 32,340／7–8 級 48,510。自付比率同照顧 16／5／0。</div>
+    <div id="gItems" class="items"></div>
+    <div class="res gov"><span class="k">喘息 政府補助</span><span class="v" id="gGov">$0</span></div>
+    <div class="res self"><span class="k">喘息 你自付（含超年額度全付）</span><span class="v" id="gSelf">$0</span></div>
+
+    <label class="fld">♿ 輔具及居家無障礙（每 3 年上限 40,000）<span class="tagf law">法規</span></label>
+    <div class="small">所有等級同額 40,000／3 年。自付比率：一般 30%／中低 10%／低 0%。超額全付。</div>
+    這 3 年輔具花費 <input type="number" id="aidAmt" value="0" min="0" style="width:100px"> 元
+    <div class="res self"><span class="k">輔具你自付</span><span class="v" id="aidSelf">$0</span></div>
+  </div></details>
+
+  <div class="warn">
+    <b>🚨 遇到這些是違法，不是佛心：</b><br>
+    機構標榜「幫你免收／減免自付額」來搶個案 → 違反《長照服務法》第 49 條，可罰 <b>3–15 萬</b>並追收擅自減免的費用。長遠可能連累你的服務被停約中斷。
+    <div class="law">部分負擔是法定義務，由特約單位服務後向你收取，不得擅自減免作招攬。</div>
+  </div>
+</section>
+
+<!-- ================= TAB A 照服員實領 ================= -->
+<section data-panel="A" class="hidden">
+  <div class="card">
+    <b>② 拆帳成數（你拿服務費的幾 %）<span class="tagf mkt">市場</span></b>
+    <div class="small">業界用「幾拆」講、指機構抽幾成。46拆=員60%、37拆=員70%、28拆=員80%。<b>非法定</b>，各機構自訂；法定下限：全時月薪不得低於 32,000。</div>
+    <input type="range" id="split" min="55" max="82" value="70">
+    <div class="res"><span class="k">你的成數</span><span class="v"><span id="splitTxt">70</span>%　<span class="small" id="splitAlias"></span></span></div>
+    <label class="fld">轉場費 <span class="tagf mkt">市場</span>／交通工時 <span class="tagf law">法規</span></label>
+    <div class="small">交通工時每小時不得低於 140（法定）；實務常見轉場費 50/趟。</div>
+    每趟 <input type="number" id="tripFee" value="50" style="width:80px"> 元 ×
+    <input type="number" id="tripQty" value="0" min="0" style="width:70px"> 趟
+    <label class="fld"><input type="checkbox" id="cert"> 加計證照加給（約 +1,000/月）<span class="tagf mkt">市場</span></label>
+  </div>
+
+  <div class="card">
+    <div class="res"><span class="k">機構實收服務費（你做的 BA 項目合計）</span><span class="v" id="aBase">$0</span></div>
+    <div class="res"><span class="k">拆帳所得（服務費 × 你的成數）</span><span class="v" id="aSplit">$0</span></div>
+    <div class="res"><span class="k">＋ 轉場費 ＋ 證照加給</span><span class="v" id="aExtra">$0</span></div>
+    <div class="res big"><span class="k">帳面月收入估算</span><span class="v" id="aTake">$0</span></div>
+    <div class="small">「帳面」不等於「實質」——差別在下面的勞退 6%、勞健保、加班費與職災保障。</div>
+  </div>
+
+  <div class="card">
+    <b>③ 同樣做這些服務：機構聘僱 vs 工會靠行，差在哪</b>
+    <label class="fld">你的月投保薪資（估）<span class="tagf est">估算</span></label>
+    <input type="number" id="insSalary" value="32000" style="width:110px"> 元（用來算勞退 6% 與保費差）
+    <div class="cmp">
+      <div class="col a"><h4>✅ 機構聘僱</h4>
+        <div class="r"><span>雇主提繳勞退 6%</span><b id="cA_pension">$0</b></div>
+        <div class="r"><span>勞健保個人負擔</span><span>約 20–30%（雇主分攤）</span></div>
+        <div class="r"><span>職災 / 加班費 / 特休 / 資遣</span><b>適用勞基法</b></div>
+        <div class="r"><span>你的隱形保障合計/月</span><b id="cA_hidden">$0</b></div>
+      </div>
+      <div class="col b"><h4>⚠️ 工會靠行</h4>
+        <div class="r"><span>雇主提繳勞退 6%</span><b style="color:var(--bad)">$0（消失）</b></div>
+        <div class="r"><span>勞健保個人負擔</span><span style="color:var(--bad)">升到約 60% 自付</span></div>
+        <div class="r"><span>職災 / 加班費 / 特休 / 資遣</span><span style="color:var(--bad)">幾乎沒有</span></div>
+        <div class="r"><span>成數雖高，但少的保障</span><b style="color:var(--bad)">難用錢補回</b></div>
+      </div>
+    </div>
+    <div class="small">勞退 6% 每月 <span id="pensionYr">$0</span>，<b>40 年約 <span id="pension40">$0</span></b>（未計投資報酬）——這是靠行「換不回」的部分。</div>
+  </div>
+
+  <div class="warn">
+    <b>🚨 新人最常被吃的兩件事：</b><br>
+    ① <b>加班費被拆帳吃掉</b>：休息日出勤 8 小時、時薪 200，法定加班費應 <b>2,540</b>，但 46 拆帳制只入帳 <b>1,848</b> → 差 692 屬違法短給。<br>
+    ② <b>假承攬真僱傭</b>：機構叫你「當老闆」自己去工會保、簽承攬，但只要它管你打卡與服務品質，法律上仍是僱傭。<b>書面寫承攬不算數</b>——勞動部依「人格／經濟／組織」三從屬性實質認定（釋字 740 號＋25 項檢核表）。
+    <div class="law">被認定僱傭：機構規避勞健保、勞退 6%、職災、加班費即違法。</div>
+  </div>
+</section>
+
+<!-- ================= TAB C 機構分潤 ================= -->
+<section data-panel="C" class="hidden">
+  <div class="card">
+    <b>② 分潤設定</b>
+    <div class="small">拆帳成數與 Tab A 連動（改一邊、另一邊同步）。</div>
+    <input type="range" id="splitC" min="55" max="82" value="70">
+    <div class="res"><span class="k">付給照服員的成數</span><span class="v"><span id="splitCTxt">70</span>%</span></div>
+    <label class="fld">雇主端保費+勞退負擔（佔員工投保薪資%）<span class="tagf est">估算</span></label>
+    <div class="small">雇主端勞保+健保+勞退 6% 合計約佔人力成本 20–25%，此處以「員工拆帳所得 ×」估算。</div>
+    <input type="range" id="empCost" min="0" max="30" value="20">
+    <span class="res" style="display:inline">雇主負擔約 <b id="empCostTxt">20</b>%</span>
+  </div>
+
+  <div class="card">
+    <div class="res"><span class="k">機構實收服務費（Σ 給付點數）</span><span class="v" id="cBase">$0</span></div>
+    <div class="res"><span class="k">－ 付給照服員（拆帳）</span><span class="v" id="cWorker">$0</span></div>
+    <div class="res"><span class="k">= 機構抽成</span><span class="v" id="cCut">$0</span></div>
+    <div class="res self"><span class="k">－ 雇主保費+勞退 6%（估）</span><span class="v" id="cIns">$0</span></div>
+    <div class="res big"><span class="k">機構淨留（未計督導/行政/訓練）</span><span class="v" id="cNet">$0</span></div>
+    <div class="small" id="cRemark"></div>
+  </div>
+
+  <div class="ok" id="cContradiction">
+    <b>💡 結構矛盾：</b>當你把成數拉到 <b>80%（28 拆）</b>，機構抽成只剩 20%，扣掉雇主端勞健保+勞退（約 20%）就幾乎歸零、沒有督導與管理空間。<b>所以高成數常伴隨「叫你自己去工會投保」</b>——把保費成本轉嫁給照服員，這正是新人被「高拆帳」吸引卻少了保障的根源。
+  </div>
+
+  <div class="warn">
+    <b>🚨 機構端違規＝重罰：</b><br>
+    虛報浮報服務費用、資訊系統登載不實、找人頭冒名核銷 → <b>不予支付</b>（特約辦法 §42），查獲追償另加計 <b>5–10 倍違約金</b>（重複違規 10–20 倍，§36）；記點可停止派案 30–180 日，累點終止特約、代表人 3 年內不予特約（§31、§32、§8）。
+    <div class="law">實例：高雄某協會以 25 名照服員名義偽造服務紀錄，詐領長照給付逾千萬（已移送、追回款項；最終刑度未定，不逕稱判刑）。</div>
+  </div>
+</section>
+
+<!-- ================= 合規對照 ================= -->
+<h2 class="ch">🚨 合規 ↔ 違規對照（法條只列查證到的）</h2>
+<details class="acc"><summary>虛報／溢領給付</summary><div class="bd">
+  機構或照服員虛報服務次數、未到宅卻請款、家屬與機構合謀套領。<br>
+  <b>後果：</b>不予支付（特約辦法 §42-4、§42-9）；追償＋<b>5–10 倍違約金</b>，重複 10–20 倍（§36）；不實記載罰 <b>6,000–30,000</b> 併停業（長照服務法 §56）；紀錄不實限期未改記點（§25-9），累點停派案/終止特約（§31、§32）。刑事另涉詐欺、偽造文書。
+  <div class="law">實例：25 人頭案、AB 兩套班表冒名核銷、防疫獎勵金灌水人數。⚠️ 各案最終刑度未查證，不寫「判幾年」。</div>
+</div></details>
+<details class="acc"><summary>減免部分負擔招攬個案</summary><div class="bd">
+  機構「幫你免收自付額」搶客＝變相削價回扣。<b>違法</b>：記點（§25-1 引 §8-1）＋罰 <b>30,000–150,000</b> 並追收（長照服務法 §49）。部分負擔是法定義務，不得擅自減免。
+</div></details>
+<details class="acc"><summary>靠行／借牌／人頭</summary><div class="bd">
+  非長照機構使用長照機構名稱 → 罰 <b>10,000–50,000</b>（長照服務法 §27）。借用合格居服員身分核銷＝虛報（見上）。
+</div></details>
+<details class="acc"><summary>假承攬真僱傭／勞動權益</summary><div class="bd">
+  以「承攬／靠行」規避勞健保、勞退、職災、加班費。勞動部「勞動契約認定指導原則」依<b>釋字 740 號</b>及判例，以人格／經濟／組織<b>三從屬性</b>實質認定（附 25 項檢核表），<b>書面寫承攬不算數</b>。高薪低報（壓投保級距）違全民健保法，罰<b>少繳額 2–4 倍</b>。
+  <div class="law">⚠️ 交通/空班工時不計薪：屬爭議、法理上工時應計薪，但未查到指名該項的確定勞檢裁罰個案。</div>
+</div></details>
+
+<!-- ================= 新人陷阱 ================= -->
+<h2 class="ch">💡 進這行前先懂這 6 件事（新人視角）</h2>
+<div class="small" style="margin-bottom:6px">來源：Dcard 職場板、PTT Salary 板從業者、工會與拆帳分析。屬現場經驗分享，非官方統計。</div>
+<details class="acc"><summary>1. 「時間彈性又有勞健保」的招生話術，跟現場落差大</summary><div class="bd">彈性是真的，但案源不穩、跨案空檔、假日出勤壓力，招生講的跟做起來常常兩回事。</div></details>
+<details class="acc"><summary>2. 「拆帳 6 成很高」是錯覺</summary><div class="bd">拆帳只拆「有服務的那一段」，兩案間騎車、等待、油錢多半不入帳；加班費又常被吃掉。PTT 實測換算約時薪 250，動作慢／項目差還更低——不一定贏時薪制。</div></details>
+<details class="acc"><summary>3. 以為機構一定幫你保勞健保</summary><div class="bd">拆帳／承攬制常要你自己去職業工會投保，個人保費負擔從 20–30% 跳到 <b>60%</b>，勞退 6% 直接消失。</div></details>
+<details class="acc"><summary>4. 不懂「靠行/承攬」＝放棄職災與勞退</summary><div class="bd">成數換得高，但出事沒職災補償、退休沒雇主提繳的 6%，才發現換不回。</div></details>
+<details class="acc"><summary>5. 誤把「機構幫你免自付額」當福利</summary><div class="bd">那是違法招攬（可罰 3–15 萬並追收），不是佛心，還可能害個案服務被停約。</div></details>
+<details class="acc"><summary>6. 不懂「投保級距＝高薪低報」的代價</summary><div class="bd">機構用拆帳把投保薪資壓低，退休金、職災、勞保給付全部縮水；出事才知道少領一大截。</div></details>
+
+<div class="foot">
+  🧮 長照給付・拆帳計算器｜基準版本 111.02.01（附表四）｜最後查核 2026-07-26<br>
+  <b>教育用途</b>，實際給付以各縣市長照管理中心核定為準；市場實務與估算值僅供理解結構，非精算。<br>
+  資料來源與可信度分級：<a href="calculator-data-sources.md">calculator-data-sources.md</a>　·　<a href="index.html">← 回首頁</a>
+</div>
+
+<script>
+/* ---------- 資料（見 calculator-data-sources.md，皆雙源確認或標市場/估算） ---------- */
+const BA=[
+ ['BA01','基本身體清潔',260,'次'],['BA02','基本日常照顧',195,'次'],['BA03','測量生命徵象',35,'次'],
+ ['BA04','協助進食/管灌餵食',130,'次'],['BA05','餐食照顧',310,'次'],['BA07','協助沐浴及洗頭',325,'次'],
+ ['BA08','足部照護',500,'次'],['BA09','到宅沐浴車(第1型)',2200,'次'],['BA09a','到宅沐浴車(第2型)',2500,'次'],
+ ['BA10','翻身拍背',155,'次'],['BA11','肢體關節活動',195,'次'],['BA12','協助上下樓梯',130,'次'],
+ ['BA13','陪同外出',195,'30分'],['BA14','陪同就醫',685,'1.5hr'],['BA15-1','家務協助(補助型)',195,'30分'],
+ ['BA16-1','代購/代領/代送(補助型)',130,'5km'],['BA17a','人工氣道內分泌物抽吸',75,'次'],
+ ['BA17b','口腔內分泌物抽吸',65,'次'],['BA17c','尿管/鼻胃管清潔固定',50,'次'],['BA17d1','血糖機驗血糖',50,'次'],
+ ['BA17d2','甘油球通便',50,'次'],['BA17e','依指示置入藥盒',50,'次'],['BA18','安全看視',200,'30分'],
+ ['BA20','陪伴服務',175,'時段'],['BA22','巡視服務',130,'次'],['BA23','協助洗頭',200,'次'],['BA24','協助排泄',220,'次']
+];
+const C=[
+ ['CA07','復能照護',4500,'3次1單位'],['CA08','ISP擬定與執行',6000,'4次1單位'],
+ ['CB01a','營養照護',4500,'3次1單位'],['CB02','進食與吞嚥照護',9000,'6次1單位'],
+ ['CB03','困擾行為照護',4500,'3次1單位'],['CB04','臥床照護',9000,'6次1單位'],
+ ['CC01','居家環境無障礙規劃',2000,'次'],['CD02','居家護理指導諮詢',6000,'次']
+];
+const G=[
+ ['GA03','日照喘息-全日(含交通)',1250,'日'],['GA04','日照喘息-半日(含交通)',625,'半日'],
+ ['GA05','機構住宿式喘息(含交通)',2310,'日'],['GA06','小規模多機能夜間喘息',2000,'次'],
+ ['GA07','巷弄長照站臨托',170,'小時'],['GA09','居家喘息',770,'2hr單位']
+];
+const CMS={2:10020,3:15460,4:18580,5:24100,6:28070,7:32090,8:36180};
+const RATE={general:{care:.16,transport:.27,aid:.30},midlow:{care:.05,transport:.09,aid:.10},low:{care:0,transport:0,aid:0}};
+const ALIAS={55:'55拆',60:'46拆',64:'64拆',70:'37拆',80:'28拆',82:'82拆'};
+
+const qty={};           // code -> quantity (shared across tabs)
+const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
+const $=id=>document.getElementById(id);
+
+/* ---------- 建立步進器 ---------- */
+function buildItems(list,host){
+  host.innerHTML='';
+  list.forEach(([code,name,price,unit])=>{
+    qty[code]=qty[code]||0;
+    const row=document.createElement('div');row.className='it';row.dataset.code=code;
+    row.innerHTML=`<div class="nm"><span class="cd">${code}</span>${name}<span class="pr"> ${price}/${unit}</span></div>
+      <div class="stp"><button data-d="-1">−</button><input type="text" inputmode="numeric" value="0" data-code="${code}"><button data-d="1">＋</button></div>`;
+    host.appendChild(row);
+  });
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.stp button');if(!b)return;
+  const inp=b.parentElement.querySelector('input');const code=inp.dataset.code;
+  let v=(parseInt(inp.value)||0)+parseInt(b.dataset.d);if(v<0)v=0;
+  inp.value=v;qty[code]=v;syncQty(code,v);recalc();
+});
+document.addEventListener('input',e=>{
+  if(e.target.matches('.stp input')){let v=parseInt(e.target.value)||0;if(v<0)v=0;
+    qty[e.target.dataset.code]=v;syncQty(e.target.dataset.code,v);recalc();}
+});
+function syncQty(code,v){document.querySelectorAll(`.stp input[data-code="${code}"]`).forEach(i=>i.value=v);
+  document.querySelectorAll(`.it[data-code="${code}"]`).forEach(r=>r.classList.toggle('act',v>0));}
+
+/* ---------- 計算 ---------- */
+function careSum(){let s=0;BA.forEach(([c,,p])=>s+=(qty[c]||0)*p);C.forEach(([c,,p])=>s+=(qty[c]||0)*p);return s;}
+function baSum(){let s=0;BA.forEach(([c,,p])=>s+=(qty[c]||0)*p);return s;}
+function respiteSum(){let s=0;G.forEach(([c,,p])=>s+=(qty[c]||0)*p);return s;}
+
+function recalc(){
+  const ba=baSum(), care=careSum();
+  $('baTotal').textContent=fmt(ba);   // 共用區顯示 BA 合計（照服員/機構分潤基礎）
+
+  /* --- Tab B --- */
+  const lvl=+$('cms').value, cap=CMS[lvl];
+  const idv=document.querySelector('input[name=id]:checked').value;
+  const r=RATE[idv];
+  const inCap=Math.min(care,cap), over=Math.max(0,care-cap);
+  const gov=inCap*(1-r.care), selfIn=inCap*r.care, selfOver=over; // 超額 100%
+  $('bGov').textContent=fmt(gov);
+  $('bSelfIn').textContent=fmt(selfIn);
+  $('bSelfOver').textContent=fmt(selfOver);
+  $('bOverRow').classList.toggle('hidden',over<=0);
+  $('bSelfTotal').textContent=fmt(selfIn+selfOver);
+  const uPct=Math.min(100,care/cap*100), oPct=over>0?Math.min(100,over/cap*100):0;
+  $('capBar').children[0].style.width=Math.min(100,uPct)+'%';
+  $('capBar').children[1].style.width=oPct+'%';
+  $('capTxt').innerHTML=`照顧+專業已用 <b>${fmt(care)}</b> / 月額度 ${fmt(cap)}（${Math.round(care/cap*100)}%）`+(over>0?` — <b style="color:var(--bad)">超額 ${fmt(over)} 需全額自付</b>`:'');
+  // 交通
+  const trP=+$('trPrice').value||0, trQ=+$('trQty').value||0, trTot=trP*trQ;
+  $('trSelf').textContent=fmt(trTot*r.transport);
+  // 喘息
+  const resp=respiteSum(), rcap=lvl<=6?32340:48510;
+  const rIn=Math.min(resp,rcap), rOver=Math.max(0,resp-rcap);
+  $('gGov').textContent=fmt(rIn*(1-r.care));
+  $('gSelf').textContent=fmt(rIn*r.care+rOver);
+  // 輔具
+  const aid=+$('aidAmt').value||0, aidCap=40000;
+  const aIn=Math.min(aid,aidCap), aOver=Math.max(0,aid-aidCap);
+  $('aidSelf').textContent=fmt(aIn*r.aid+aOver);
+
+  /* --- Tab A --- */
+  const pct=+$('split').value;
+  $('splitTxt').textContent=pct;
+  $('splitAlias').textContent=ALIAS[pct]?('≈'+ALIAS[pct]):'';
+  const splitInc=ba*pct/100;
+  const trip=(+$('tripFee').value||0)*(+$('tripQty').value||0);
+  const certPay=$('cert').checked?1000:0;
+  $('aBase').textContent=fmt(ba);
+  $('aSplit').textContent=fmt(splitInc);
+  $('aExtra').textContent=fmt(trip+certPay);
+  $('aTake').textContent=fmt(splitInc+trip+certPay);
+  const ins=+$('insSalary').value||0, pension=ins*0.06;
+  $('cA_pension').textContent=fmt(pension);
+  $('cA_hidden').textContent=fmt(pension)+' ＋ 職災/加班/特休';
+  $('pensionYr').textContent=fmt(pension);
+  $('pension40').textContent=fmt(pension*12*40);
+
+  /* --- Tab C --- */
+  const pctC=+$('splitC').value; $('splitCTxt').textContent=pctC;
+  const empPct=+$('empCost').value; $('empCostTxt').textContent=empPct;
+  const worker=ba*pctC/100, cut=ba*(1-pctC/100), insCost=worker*empPct/100, net=cut-insCost;
+  $('cBase').textContent=fmt(ba);
+  $('cWorker').textContent=fmt(worker);
+  $('cCut').textContent=fmt(cut);
+  $('cIns').textContent=fmt(insCost);
+  $('cNet').textContent=fmt(net);
+  $('cRemark').innerHTML = net<0
+    ? '<b style="color:var(--bad)">機構淨留為負</b>：這個成數下，抽成扣掉雇主保費就虧，機構要嘛壓低你投保級距、要嘛叫你去工會自保。'
+    : '尚未扣督導、排班行政、教育訓練、核銷人力等固定成本。';
+}
+
+/* ---------- Tab 切換 ---------- */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  const tab=t.dataset.tab;
+  document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==tab));
+}));
+document.querySelectorAll('#ident label').forEach(l=>l.addEventListener('click',()=>{
+  document.querySelectorAll('#ident label').forEach(x=>x.classList.remove('on'));l.classList.add('on');}));
+
+/* 成數 A/C 連動 */
+$('split').addEventListener('input',()=>{$('splitC').value=$('split').value;recalc();});
+$('splitC').addEventListener('input',()=>{$('split').value=$('splitC').value;recalc();});
+['cms','trPrice','trQty','aidAmt','tripFee','tripQty','cert','insSalary','empCost'].forEach(id=>{
+  const el=$(id);el&&el.addEventListener('input',recalc);
+});
+document.querySelectorAll('input[name=id]').forEach(el=>el.addEventListener('change',recalc));
+
+/* init */
+buildItems(BA,$('baItems'));
+buildItems(C,$('cItems'));
+buildItems(G,$('gItems'));
+recalc();
+</script>
+</div></body></html>
