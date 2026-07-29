@@ -8,43 +8,65 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);
  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
- line-height:1.65;font-size:16px}
-.wrap{max-width:860px;margin:0 auto;padding:20px 16px 70px}
+ line-height:1.6;font-size:16px}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 70px}
 a{color:var(--accent)}
+.back{display:inline-block;margin:14px 0 10px;font-size:.9rem;text-decoration:none}
 .top{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;
- padding:20px 22px;margin-bottom:16px}
-.top h1{margin:0 0 6px;font-size:1.35rem}.top p{margin:0;opacity:.94;font-size:.9rem}
-.back{display:inline-block;margin:0 0 14px;font-size:.9rem;text-decoration:none}
-.key{background:var(--okbg);border-left:4px solid var(--accent);border-radius:10px;padding:14px 18px;margin:16px 0}
-.key ol{margin:8px 0 0;padding-left:22px}.key li{margin:5px 0}
-h2.ch{color:var(--accent);border-left:5px solid var(--accent);padding-left:10px;margin:26px 0 4px;font-size:1.18rem}
-.sub{color:var(--muted);font-size:.86rem;margin:0 0 10px}
-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:10px 0}
-th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);font-size:.95rem;vertical-align:top}
-th{background:var(--accent2);color:#fff;font-size:.85rem;width:120px}
-tr:last-child td{border-bottom:0}
+ padding:16px 20px;margin-bottom:12px}
+.top h1{margin:0 0 4px;font-size:1.3rem}.top p{margin:0;opacity:.94;font-size:.88rem}
+/* sticky 影片 */
+.player{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0 6px;margin:0 -16px;border-bottom:1px solid var(--line)}
+.pbox{max-width:520px;margin:0 auto;padding:0 16px}
+.ratio{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 3px 12px rgba(0,0,0,.2)}
+.ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.nowplay{text-align:center;font-size:.82rem;color:var(--muted);margin:5px 0 0;min-height:1.1em}
+.tip{background:var(--revbg);border-left:4px solid var(--rev);border-radius:9px;padding:10px 14px;margin:12px 0;font-size:.86rem}
+.key{background:var(--okbg);border-left:4px solid var(--accent);border-radius:10px;padding:12px 16px;margin:14px 0}
+.key ol{margin:6px 0 0;padding-left:22px}.key li{margin:4px 0}
+h2.ch{color:var(--accent);border-left:5px solid var(--accent);padding-left:10px;margin:24px 0 4px;font-size:1.15rem}
+.sub{color:var(--muted);font-size:.85rem;margin:0 0 8px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:8px 0}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);font-size:.94rem;vertical-align:top}
+tr:last-child td,tr:last-child th{border-bottom:0}
 td b,.key b{color:var(--rev)}
 @media(prefers-color-scheme:dark){td b,.key b{color:#ffcc80}}
-.flow{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:10px 0}
-.flow p{margin:8px 0}
-.foot{color:var(--muted);font-size:.82rem;margin-top:34px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
-.print{background:var(--accent);color:#fff;border:0;border-radius:9px;padding:8px 16px;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;margin-left:8px}
+/* 可點的動作按鈕格 */
+th.mv{width:150px;background:transparent;color:var(--accent);font-weight:700;cursor:pointer;transition:.12s;user-select:none;white-space:nowrap}
+th.mv:hover{background:var(--okbg)}
+th.mv .pl{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:5px;background:var(--accent);color:#fff;font-size:.72rem;margin-right:6px;vertical-align:middle}
+th.mv .ts{color:var(--muted);font-weight:400;font-size:.75rem;margin-left:4px}
+.flow th.mv{display:block;width:auto;margin-bottom:6px}
+.flow{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 4px;margin:8px 0}
+.flow table{border:0;margin:0}
+.foot{color:var(--muted);font-size:.82rem;margin-top:32px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+.print{background:#fff2;color:#fff;border:1px solid #fff6;border-radius:8px;padding:5px 12px;font:inherit;font-size:.85rem;cursor:pointer;margin-top:8px}
 @media print{
  body{background:#fff;color:#000;font-size:12px;line-height:1.4}
  .wrap{max-width:100%;padding:0}
+ .player,.tip,.print,.back{display:none}
  .top{background:none;color:#000;border:0;padding:0 0 6px;border-bottom:2px solid #000;border-radius:0}
- .top p{opacity:1}.back,.print{display:none}
+ .top p{opacity:1}
  .key{background:#f2f2f2;border-color:#000}
- th{background:#ddd;color:#000}
+ th.mv{color:#000}.th.mv .pl,.ts{display:none}
  td b,.key b{color:#000;text-decoration:underline}
- table,.flow{box-shadow:none}
+ table,.flow{box-shadow:none;border-color:#000}
  h2.ch{color:#000;border-color:#000;margin:12px 0 3px}
 }
 </style></head><body><div class="wrap">
 <a class="back" href="index.html">← 回題庫首頁</a>
 <div class="top"><h1>🤲 術科速查 · 肢體關節活動</h1>
-<p>BA11 被動關節活動｜三考項:上肢／下肢／轉移位｜考試 8/1
-<button class="print" onclick="print()">🖨️ 列印</button></p></div>
+<p>BA11 被動關節活動｜點任何動作 ▶ 影片跳到老師示範那一段｜考試 8/1</p>
+<button class="print" onclick="print()">🖨️ 列印(純文字版)</button></div>
+
+<!-- sticky 影片播放器 -->
+<div class="player"><div class="pbox">
+<div class="ratio"><iframe id="yt" src="https://www.youtube.com/embed/eKB6-123NaA?rel=0"
+ allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>
+<p class="nowplay" id="now">▶ 點下方任一動作,影片自動跳到示範</p>
+</div></div>
+
+<div class="tip">💡 文字看不出方向?<b>點藍色的動作名稱</b>,上面的影片會跳到老師示範那 5–10 秒。時間點取自課堂錄影逐字稿,約落在該動作前後。</div>
 
 <div class="key"><b>三句話記全部</b>
 <ol>
@@ -56,33 +78,44 @@ td b,.key b{color:var(--rev)}
 <h2 class="ch">✋ 手(上肢)</h2>
 <p class="sub">一手扶手腕、一手扶手肘,手心朝個案自己。由大關節做到小關節。</p>
 <table>
-<tr><th>肩 ① 向上</th><td>手臂往上舉,貼向耳朵/床,遇阻力停</td></tr>
-<tr><th>肩 ② 向外</th><td>手心向外,伸直往外開再往上貼耳朵</td></tr>
-<tr><th>肩 ③ 內外轉</th><td>肩90°、肘90°;<b>大拇指朝下＝外轉,小拇指朝下＝內轉</b>(內轉較緊,撐一下)</td></tr>
-<tr><th>肩 ④ 畫圈</th><td>順時鐘、逆時鐘各畫</td></tr>
-<tr><th>手肘</th><td>彎伸(摸肩膀、摸床)＋「開門」動作(上臂貼身側,前臂轉上轉下)</td></tr>
-<tr><th>手腕</th><td>上下、左右、畫圈</td></tr>
-<tr><th>手指</th><td>一節一節彎、伸(握拳 → 張開)</td></tr>
+<tr><th class="mv" data-t="0"><span class="pl">▶</span>肩 ① 向上<span class="ts">0:00</span></th><td>手臂往上舉(往頭頂方向),貼向耳朵/床,遇阻力停</td></tr>
+<tr><th class="mv" data-t="61"><span class="pl">▶</span>肩 ② 向外<span class="ts">1:01</span></th><td>手心向外,伸直往身體外側開、再往上貼耳朵</td></tr>
+<tr><th class="mv" data-t="95"><span class="pl">▶</span>肩 ③ 內外轉<span class="ts">1:35</span></th><td>肩90°、肘90°;<b>大拇指朝下＝外轉,小拇指朝下＝內轉</b>(內轉較緊,撐一下)</td></tr>
+<tr><th class="mv" data-t="129"><span class="pl">▶</span>肩 ④ 畫圈<span class="ts">2:09</span></th><td>順時鐘、逆時鐘各畫</td></tr>
+<tr><th class="mv" data-t="165"><span class="pl">▶</span>手肘<span class="ts">2:45</span></th><td>彎伸(摸肩膀、摸床)＋「開門」動作(上臂貼身側,前臂轉上轉下)</td></tr>
+<tr><th class="mv" data-t="217"><span class="pl">▶</span>手腕<span class="ts">3:37</span></th><td>上下、左右、畫圈</td></tr>
+<tr><th class="mv" data-t="233"><span class="pl">▶</span>手指<span class="ts">3:53</span></th><td>一節一節彎、伸(握拳 → 張開)</td></tr>
 </table>
 
 <h2 class="ch">🦵 腳(下肢)</h2>
 <p class="sub">扶腳跟＋膝蓋,<b>髖和膝一起動</b>(不單做膝蓋)。</p>
 <table>
-<tr><th>髖+膝 ① 彎</th><td>大腿抬起,和身體成一直線(<b>不要往外歪</b>)</td></tr>
-<tr><th>髖+膝 ② 外展</th><td>往外張開,<b>不要無限往外拉</b></td></tr>
-<tr><th>髖+膝 ③ 內外轉</th><td>膝90°,固定大腿、動小腿(像翹腳)往內往外</td></tr>
-<tr><th>髖+膝 ④ 畫圈</th><td>小圈到大圈,順/逆時鐘</td></tr>
-<tr><th>腳踝</th><td>向上下、向內外、畫圈</td></tr>
-<tr><th>腳趾</th><td>一隻一隻向上、向下</td></tr>
-<tr><th>拉小腿/跟腱</th><td>🔑 前臂頂腳掌,<b>用身體重量往斜上壓</b>帶動(省力、護腰)</td></tr>
+<tr><th class="mv" data-t="364"><span class="pl">▶</span>髖+膝 ① 彎<span class="ts">6:04</span></th><td>大腿抬起,和身體成一直線(<b>不要往外歪</b>)</td></tr>
+<tr><th class="mv" data-t="438"><span class="pl">▶</span>髖+膝 ② 外展<span class="ts">7:18</span></th><td>往身體外側張開,<b>不要無限往外拉</b></td></tr>
+<tr><th class="mv" data-t="454"><span class="pl">▶</span>髖+膝 ③ 內外轉<span class="ts">7:34</span></th><td>膝90°,固定大腿、動小腿(像翹腳)往內往外</td></tr>
+<tr><th class="mv" data-t="498"><span class="pl">▶</span>髖+膝 ④ 畫圈<span class="ts">8:18</span></th><td>小圈到大圈,順/逆時鐘</td></tr>
+<tr><th class="mv" data-t="546"><span class="pl">▶</span>腳踝<span class="ts">9:06</span></th><td>向上下、向內外、畫圈</td></tr>
+<tr><th class="mv" data-t="566"><span class="pl">▶</span>腳趾<span class="ts">9:26</span></th><td>一隻一隻向上、向下</td></tr>
+<tr><th class="mv" data-t="574"><span class="pl">▶</span>拉小腿/跟腱<span class="ts">9:34</span></th><td>🔑 前臂頂腳掌,<b>用身體重量往斜上壓</b>帶動(省力、護腰)</td></tr>
 </table>
 
 <h2 class="ch">🔄 身體(翻身 → 坐起)</h2>
-<div class="flow">
-<p><b>翻身</b>:扶<b>髖關節和肩膀</b>(先把下面那隻腳屈膝踩住/交叉)→ 喊「1、2、3」翻過來 → 提醒個案「<b>都不要出力</b>」由照顧者帶。</p>
-<p><b>坐起</b>:翻成側臥後 → 一手放臀部、一手穿過肩背 → 順勢帶起坐正 → 腳放下、放平。</p>
-</div>
+<div class="flow"><table>
+<tr><th class="mv" data-t="764"><span class="pl">▶</span>翻身<span class="ts">12:44</span></th><td>扶<b>髖關節和肩膀</b>(先把下面那隻腳屈膝踩住/交叉)→ 喊「1、2、3」翻過來 → 提醒個案「<b>都不要出力</b>」由照顧者帶。</td></tr>
+<tr><th class="mv" data-t="879"><span class="pl">▶</span>坐起<span class="ts">14:39</span></th><td>翻成側臥後 → 一手放臀部、一手穿過肩背 → 順勢帶起坐正 → 腳放下、放平。</td></tr>
+</table></div>
 
 <div class="foot">每關節每次約 10–20 下、每天 1–2 次。順序無硬性規定,由大關節做到小關節即可。<br>
-來源:課堂錄影 youtu.be/eKB6-123NaA(16:08)· 個人整理</div>
-</div></body></html>
+來源:課堂錄影 <a href="https://youtu.be/eKB6-123NaA" target="_blank">youtu.be/eKB6-123NaA</a>(16:08)· 個人整理</div>
+</div>
+<script>
+var yt=document.getElementById('yt'),now=document.getElementById('now');
+document.querySelectorAll('th.mv').forEach(function(th){
+  th.addEventListener('click',function(){
+    var t=th.getAttribute('data-t');
+    yt.src='https://www.youtube.com/embed/eKB6-123NaA?rel=0&start='+t+'&autoplay=1';
+    now.textContent='▶ 播放中:'+th.textContent.replace(/▶/,'').trim();
+  });
+});
+</script>
+</body></html>
