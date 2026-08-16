@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>照服員單一級 · 學術科考試總覽</title><style>
+:root{--bg:#f4f6f5;--fg:#1f2a28;--card:#fff;--muted:#6b7a76;--line:#e0e6e3;
+ --accent:#1f7a4d;--accent2:#0d6e6e;--ok:#1f7a4d;--okbg:#e8f5ee;--bad:#c0392b;--badbg:#fdecea;
+ --rev:#a85a00;--revbg:#fff3e0;--req:#a85a00;--reqbg:#fff3e0;--draw:#0d6e6e;--drawbg:#e2f0ef;}
+@media(prefers-color-scheme:dark){:root{--bg:#161a19;--fg:#e6ece9;--card:#202624;--muted:#9aa8a3;
+ --line:#333c39;--accent:#4fc98a;--accent2:#3fb9b9;--okbg:#173a2a;--badbg:#3a1f1c;--rev:#e0a54d;--revbg:#33280f;
+ --req:#e0a54d;--reqbg:#33280f;--draw:#3fb9b9;--drawbg:#123130;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+ font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+ line-height:1.7;font-size:16.5px}
+.wrap{max-width:820px;margin:0 auto;padding:20px 16px 70px}
+a{color:var(--accent)}
+.tabnum{font-variant-numeric:tabular-nums}
+.top{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;
+ padding:22px 22px;margin-bottom:16px}
+.top h1{margin:0 0 6px;font-size:1.4rem}.top p{margin:0;opacity:.94;font-size:.92rem}
+.back{display:inline-block;margin:2px 0 14px;font-size:.9rem;text-decoration:none;color:var(--accent)}
+.vchips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 6px}
+.vchip{font-size:.76rem;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:4px 11px}
+.vchip b{color:var(--fg)}
+.note{background:var(--revbg);border-left:4px solid var(--rev);border-radius:9px;padding:11px 15px;margin:14px 0;font-size:.9rem}
+.note.bad{background:var(--badbg);border-left-color:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+h2.ch{color:var(--accent);border-left:5px solid var(--accent);padding-left:11px;margin:34px 0 4px;font-size:1.28rem}
+.sub{color:var(--muted);font-size:.9rem;margin:0 0 8px 16px}
+.card h3{margin:0 0 10px;font-size:1.05rem}
+.chip{display:inline-block;color:#fff;border-radius:20px;padding:2px 11px;font-size:.75rem;font-weight:700;margin-right:6px}
+.chip.req{background:var(--req)}.chip.draw{background:var(--draw)}.chip.ac{background:var(--accent2)}
+/* spec rows */
+.spec{list-style:none;margin:0;padding:0}
+.spec li{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}
+.spec li:last-child{border-bottom:0}
+.spec .k{color:var(--muted);font-size:.95rem}.spec .v{font-weight:700;text-align:right;font-size:.95rem}
+.spec .v.hl{color:var(--accent)}
+/* bars */
+.bars{display:flex;flex-direction:column;gap:11px;margin-top:6px}
+.brow{display:grid;grid-template-columns:8em 1fr 3.4em;align-items:center;gap:11px}
+.brow .nm{font-size:.93rem;font-weight:600}
+.btrack{height:9px;background:var(--bg);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bfill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px}
+.brow .q{font-size:.82rem;color:var(--muted);text-align:right}
+@media(max-width:520px){.brow{grid-template-columns:1fr 3.4em;grid-template-areas:"nm q" "tk tk"}
+ .brow .nm{grid-area:nm}.brow .q{grid-area:q}.btrack{grid-area:tk}}
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:.92rem;margin-top:4px}
+.tbl th,.tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+.tbl th{background:var(--bg);font-weight:700}
+.tbl td.c,.tbl th.c{text-align:center}
+.tbl tr.mustrow td{background:var(--reqbg)}
+.tag{display:inline-block;font-size:.68rem;font-weight:800;padding:1px 6px;border-radius:5px;color:#fff}
+.tag.req{background:var(--req)}
+.scroll{overflow-x:auto}
+.mini{font-size:.8rem;color:var(--muted);margin-top:8px}
+/* kill list */
+.kill{list-style:none;margin:6px 0 0;padding:0}
+.kill li{position:relative;padding:8px 0 8px 26px;border-bottom:1px solid var(--line);font-size:.94rem}
+.kill li:last-child{border-bottom:0}
+.kill li::before{content:"✕";position:absolute;left:0;top:8px;color:var(--bad);font-weight:800}
+.kill b{color:var(--bad)}
+.strat{list-style:none;margin:4px 0 0;padding:0;counter-reset:s}
+.strat li{position:relative;padding:8px 0 8px 34px;border-bottom:1px solid var(--line);font-size:.94rem}
+.strat li:last-child{border-bottom:0}
+.strat li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:7px;width:22px;height:22px;
+ border-radius:6px;background:var(--okbg);color:var(--accent);font-weight:800;font-size:.8rem;display:grid;place-items:center}
+.foot{color:var(--muted);font-size:.82rem;margin-top:36px;border-top:1px solid var(--line);padding-top:16px}
+.foot a{word-break:break-all}
+</style></head><body><div class="wrap">
+
+<a class="back" href="index.html">← 回考照重點首頁</a>
+
+<div class="top"><h1>📋 學術科考試總覽</h1>
+<p>單一級照顧服務員技術士技能檢定（職類 17800）。依官方應檢參考資料整理，對照坊間攻略書複習用。</p></div>
+
+<div class="vchips">
+ <span class="vchip">學科題庫 <b>V114090113</b>（公告 114/09/01）</span>
+ <span class="vchip">術科 <b>B19</b>（修訂 114/06/13）</span>
+ <span class="vchip">版本查核 <b>2026-07-07</b></span>
+</div>
+
+<div class="note">🔀 <b>兩階段別搞混</b>：你現在上的是「90 小時訓練課」→ 上完拿<b>結業證書（免考試）</b>；本頁講的是之後要另外報名的「<b>技術士技能檢定</b>」= 學科筆試 + 術科實作。</div>
+
+<!-- ================= A 學科 ================= -->
+<h2 class="ch">A · 學科</h2>
+<p class="sub">選擇題筆試，考「知不知道」。題目從官方公開題庫抽出。</p>
+
+<div class="card">
+ <h3>官方題庫結構 — 現行版共 <span class="tabnum">621</span> 題，6 大工作項目</h3>
+ <div class="bars">
+  <div class="brow"><span class="nm">01 身體照顧</span><div class="btrack"><div class="bfill" style="width:100%"></div></div><span class="q tabnum">≈180</span></div>
+  <div class="brow"><span class="nm">02 生活照顧</span><div class="btrack"><div class="bfill" style="width:54%"></div></div><span class="q tabnum">≈97</span></div>
+  <div class="brow"><span class="nm">05 家庭支持</span><div class="btrack"><div class="bfill" style="width:53%"></div></div><span class="q tabnum">≈95</span></div>
+  <div class="brow"><span class="nm">04 緊急及意外</span><div class="btrack"><div class="bfill" style="width:46%"></div></div><span class="q tabnum">≈83</span></div>
+  <div class="brow"><span class="nm">03 家務處理</span><div class="btrack"><div class="bfill" style="width:37%"></div></div><span class="q tabnum">≈67</span></div>
+  <div class="brow"><span class="nm">06 職業倫理</span><div class="btrack"><div class="bfill" style="width:36%"></div></div><span class="q tabnum">≈64</span></div>
+ </div>
+ <p class="mini">※ 各項題數為就現行版 PDF 概算之相對比重（官方總數 621 題為準）。<b>身體照顧佔近三成、最大宗，優先攻。</b></p>
+</div>
+
+<div class="card">
+ <h3>考試組成</h3>
+ <ul class="spec">
+  <li><span class="k">題型</span><span class="v">選擇題（電腦讀卡）</span></li>
+  <li><span class="k">專業科目</span><span class="v">17800 照顧服務員題庫</span></li>
+  <li><span class="k">共同科目</span><span class="v">90006 職安 · 90007 工作倫理 · 90008 環保 · 90009 節能</span></li>
+  <li><span class="k">及格</span><span class="v hl">學科 60 分</span></li>
+ </ul>
+ <div class="note" style="margin-bottom:0">📌 學科題庫<b>公開免費</b>（勞動部技能檢定中心），不必買書即可刷題。共同科目 4 份<b>尚未下載</b>，完整準備時再抓（同官方系統）。</div>
+</div>
+
+<div class="card">
+ <h3>讀書策略</h3>
+ <ol class="strat">
+  <li><b>先啃「01 身體照顧 ≈180 題」</b>——佔比最大，又和術科必考（生命徵象、餵食用藥）重疊，一石二鳥。</li>
+  <li><b>錯題本優先</b>——攻略書那 400 題第一輪只標紅答錯的，第二輪只做紅的，不重讀已會題。</li>
+  <li><b>職業倫理 / 家庭支持偏常識</b>——送分區，臨考前快掃即可。</li>
+  <li><b>以官方題庫核對書上答案</b>——版本每年會微調，本 repo `參考教材/考照/學科題庫/` 有現行版原檔。</li>
+ </ol>
+</div>
+
+<!-- ================= B 術科 ================= -->
+<h2 class="ch">B · 術科</h2>
+<p class="sub">一對一情境實作，考「做不做得對」。照評審表逐項打勾扣分。</p>
+
+<div class="card">
+ <h3>怎麼考：7 題題庫 → 甲/乙/丙套，每套只做 4 題</h3>
+ <div class="scroll"><table class="tbl">
+  <tr><th class="c">編號</th><th>試題名稱</th><th class="c">時間</th><th class="c">性質</th></tr>
+  <tr class="mustrow"><td class="c">01</td><td>生命徵象測量（體溫·脈搏·呼吸·血壓）</td><td class="c tabnum">20 分</td><td class="c"><span class="tag req">必考</span></td></tr>
+  <tr><td class="c">02</td><td>成人異物哽塞急救法</td><td class="c tabnum">5 分</td><td class="c">抽考</td></tr>
+  <tr><td class="c">03</td><td>成人心肺甦醒術 CPR</td><td class="c tabnum">6 分</td><td class="c">抽考</td></tr>
+  <tr class="mustrow"><td class="c">04</td><td>備餐、餵食及協助用藥</td><td class="c tabnum">40 分</td><td class="c"><span class="tag req">必考</span></td></tr>
+  <tr><td class="c">05</td><td>洗頭、衣物更換</td><td class="c tabnum">40 分</td><td class="c">抽考</td></tr>
+  <tr><td class="c">06</td><td>會陰沖洗及尿管清潔（丙套再抽男／女）</td><td class="c tabnum">25 分</td><td class="c">抽考</td></tr>
+  <tr><td class="c">07</td><td>協助上下床及坐輪椅</td><td class="c tabnum">20 分</td><td class="c">抽考</td></tr>
+ </table></div>
+ <p class="mini" style="margin-top:12px"><b>每套固定含 01＋04（必考），再依套別配 2 題：</b></p>
+ <div class="scroll"><table class="tbl">
+  <tr><th class="c">套別</th><th class="c">四題題號</th><th>= 必考 + 抽考</th></tr>
+  <tr><td class="c">甲</td><td class="c tabnum">401·402·404·405</td><td>生命徵象＋餵食用藥＋哽塞急救＋洗頭衣物</td></tr>
+  <tr><td class="c">乙</td><td class="c tabnum">401·403·404·407</td><td>生命徵象＋餵食用藥＋CPR＋上下床輪椅</td></tr>
+  <tr><td class="c">丙</td><td class="c tabnum">401·402·404·406</td><td>生命徵象＋餵食用藥＋哽塞急救＋會陰尿管</td></tr>
+ </table></div>
+</div>
+
+<div class="card">
+ <h3>術科規格</h3>
+ <ul class="spec">
+  <li><span class="k">及格標準</span><span class="v hl">四題「每一題」都要 ≥60 分</span></li>
+  <li><span class="k">場次</span><span class="v">上／下午各 1 場，每場約 3.5 小時</span></li>
+  <li><span class="k">每場人數</span><span class="v">12 人為原則</span></li>
+  <li><span class="k">入場</span><span class="v">遲到逾 15 分不准入場</span></li>
+  <li><span class="k">自備工具</span><span class="v">手錶（附秒針）· 圍裙（連上身）</span></li>
+ </ul>
+</div>
+
+<div class="note bad">⚠️ <b>致命規則（直接零分／不計分，出自官方 B19）</b>
+ <ul class="kill">
+  <li>操作中案主<b>跌倒／摔傷／燙傷</b>等意外 → 該試題<b>整題零分</b>。</li>
+  <li>測試中<b>自己受傷</b>，未先處理傷口→戴乳膠手套→洗手擦乾就繼續 → 受傷後所有操作<b>一律不計分</b>（延遲時間不補）。</li>
+  <li><b>未穿好圍裙</b>不准進場；自備工具夾帶文字符號 = 重大疏失。</li>
+  <li>時間內<b>未完成的項目以零分計</b>；喊「時間結束」立刻停手。</li>
+  <li>素食者要用<b>板豆腐代魚塊</b>，須<b>考前 7 日</b>先連絡辦理單位，逾時不受理。</li>
+ </ul>
+</div>
+
+<div class="note">🩺 各項<b>逐步操作步驟與評審表勾選細目</b>不在本頁——請看本 repo `參考教材/考照/術科應檢資料/` 的官方 B19 PDF，或攻略書「術科操作與提示」篇。步驟會改版，<b>一律以官方現行版為準，不信網路影片</b>（影片不跟著改版）。你的上課筆記 <a href="../2026-07-26/notes.md">2026-07-26（術科實作日）</a>、<a href="../2026-08-02/notes.md">2026-08-02（臨床實習）</a> 已練過多數動作。</div>
+
+<div class="foot">
+ 個人備考整理 · 考試規範以勞動部勞動力發展署技能檢定中心當期公告為準。<br>
+ 官方原檔（本 repo）：<code>參考教材/考照/</code>（學科題庫 V114090113 · 術科 B19）。<br>
+ 官方站：<a href="https://techbank.wdasec.gov.tw/owInform/TestReferData.aspx">techbank.wdasec.gov.tw</a>
+</div>
+
+</div></body></html>
